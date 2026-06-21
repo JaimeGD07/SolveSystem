@@ -1,3 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+@theme {
+  /* Paleta del Sistema Solve basada en Figma */
+  --color-solve-primary: #0188FF;    /* Azul brillante (Botones) */
+  --color-solve-dark: #2A2597;       /* Azul marino (Títulos) */
+  --color-solve-darker: #211B92;     /* Azul marino oscuro */
+  --color-solve-secondary: #007BAF;  /* Azul verdoso */
+  --color-solve-light: #337CC5;      /* Azul claro */
+  --color-solve-gray: #CDCDCD;       /* Gris para bordes/sombras */
+  --color-solve-pale: rgba(192, 253, 255, 0.61); /* Cyan con 61% opacidad */
+}
