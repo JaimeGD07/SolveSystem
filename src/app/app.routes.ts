@@ -59,6 +59,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/pages/configuracion/configuracion.component').then(m => m.ConfiguracionComponent)
   },
   {
+    path: 'gestion/roles',
+    loadComponent: () => import('./features/admin/pages/gestion-roles/gestion-roles.component').then(m => m.GestionRolesComponent)
+  },
+  {
+    path: 'gestion/catalogos',
+    loadComponent: () => import('./features/admin/pages/gestion-catalogos/gestion-catalogos.component').then(m => m.GestionCatalogosComponent)
+  },
+  {
     path: 'config',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -1,0 +1,56 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8 bg-white">
+      <div class="max-w-5xl mx-auto">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-gray-200 pb-6">
+          <div>
+            <h1 class="text-3xl font-extrabold text-solve-darker">Categorías de Preguntas</h1>
+            <p class="text-solve-text-light mt-1 text-lg font-medium">Administrar categorías y tipos de preguntas</p>
+          </div>
+
+          <button class="bg-solve-pale hover:bg-solve-pale-strong text-black font-medium py-3 px-6 rounded-2xl transition-colors flex items-center gap-2 text-lg shadow-sm">
+            + Crear Categoria
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+          @for (cat of categorias(); track cat.codCat) {
+            <div class="bg-white border border-gray-400 rounded-2xl p-6 flex flex-col shadow-sm relative">
+
+              <div class="flex justify-between items-start mb-6">
+                <span class="text-2xl">{{ cat.icono }}</span>
+                <div class="w-4 h-4 bg-solve-primary rounded-full shadow-inner"></div>
+              </div>
+
+              <h2 class="text-xl font-extrabold text-solve-darker mb-3">{{ cat.nombre }}</h2>
+              <p class="text-solve-light font-medium text-sm mb-8 grow">{{ cat.descripcion }}</p>
+
+              <div class="flex gap-4 w-full">
+                <button class="flex-1 bg-solve-pale hover:bg-solve-pale-strong text-black font-bold py-2.5 rounded-xl transition-colors flex justify-center items-center gap-2">
+                  Editar <span class="text-solve-primary">✏️</span>
+                </button>
+                <button (click)="eliminarCategoria(cat.codCat)" class="flex-1 bg-[rgba(255,192,192,0.81)] hover:bg-red-200 text-black font-bold py-2.5 rounded-xl transition-colors flex justify-center items-center gap-2">
+                  Eliminar <span class="text-red-600">🗑️</span>
+                </button>
+              </div>
+
+            </div>
+          } @empty {
+            <div class="col-span-1 md:col-span-2 text-center py-12 border-2 border-dashed border-gray-300 rounded-2xl">
+              <p class="text-solve-text-muted font-medium">Aún no hay categorías creadas.</p>
+            </div>
+          }
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>

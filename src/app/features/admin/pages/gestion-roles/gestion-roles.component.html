@@ -1,0 +1,68 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <div class="max-w-6xl mx-auto">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h1 class="text-3xl font-extrabold text-solve-darker flex items-center gap-2">
+              <span class="text-solve-text-muted">👥</span> Gestion de roles
+            </h1>
+            <p class="text-solve-text-muted mt-1 text-base font-medium">Administrar roles y permisos del sistema</p>
+          </div>
+
+          <button class="bg-solve-pale hover:bg-solve-pale-strong text-solve-darker font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm border border-transparent">
+            + Crear rol
+          </button>
+        </div>
+
+        <div class="bg-white border border-solve-gray rounded-xl p-6 shadow-sm mb-6">
+          <h2 class="text-xl font-bold text-solve-darker mb-2">Todos los Roles</h2>
+          <p class="text-solve-light text-sm font-medium">Total: {{ roles().length }} roles</p>
+        </div>
+
+        <div class="bg-white border border-solve-gray rounded-xl p-6 shadow-sm">
+          <div class="overflow-x-auto rounded-lg border border-solve-darker">
+            <table class="w-full text-center border-collapse">
+              <thead>
+                <tr class="text-sm text-solve-darker font-bold border-b border-solve-darker bg-white">
+                  <th class="py-3 px-4 border-r border-solve-darker w-1/4">Nombre</th>
+                  <th class="py-3 px-4 border-r border-solve-darker w-2/4">Descripcion</th>
+                  <th class="py-3 px-4 border-r border-solve-darker w-1/8">Tipo</th>
+                  <th class="py-3 px-4 w-1/8">acciones</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm font-medium text-solve-darker bg-white">
+                @for (rol of roles(); track rol.id) {
+                  <tr class="border-b border-solve-darker last:border-b-0 hover:bg-solve-pale/30 transition-colors">
+                    <td class="py-3 px-4 border-r border-solve-darker">{{ rol.nombre }}</td>
+                    <td class="py-3 px-4 border-r border-solve-darker">{{ rol.descripcion }}</td>
+                    <td class="py-3 px-4 border-r border-solve-darker">{{ rol.tipo }}</td>
+                    <td class="py-3 px-4">
+                      <div class="flex items-center justify-center gap-3">
+                        <button class="text-solve-light hover:text-solve-primary transition-colors" title="Editar">✏️</button>
+                        <button (click)="eliminarRol(rol.id)" class="text-red-500 hover:text-red-700 transition-colors" title="Eliminar">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="py-8 text-center text-solve-text-muted font-medium">
+                      No hay roles configurados en el sistema.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
