@@ -23,6 +23,9 @@ export class PreguntaService {
   listarPorEncuesta(encuestaId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/encuesta/${encuestaId}`);
   }
+  listarPorPregunta(codPre: number) {
+  return this.http.get<any[]>(`${this.apiUrl}/pregunta/${codPre}`);
+}
 
   crear(data: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, data);
