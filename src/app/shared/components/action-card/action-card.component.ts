@@ -8,7 +8,7 @@ import { RouterLink } from '@angular/router';
     <div class="bg-white rounded-xl border border-gray-200 p-6 flex flex-col items-center text-center shadow-sm hover:shadow-md transition-shadow h-full">
       <div class="mb-4 text-2xl text-solve-darker">{{ icon() }}</div>
 
-      <h3 class="text-sm font-bold text-solve-darker mb-2 min-h-[40px]">{{ title() }}</h3>
+      <h3 class="text-sm font-bold text-solve-darker mb-2 min-h-10">{{ title() }}</h3>
 
       <p class="text-xs text-solve-blue-dash grow mb-4">{{ description() }}</p>
 
