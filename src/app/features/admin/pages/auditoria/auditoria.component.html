@@ -1,0 +1,90 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <div class="max-w-6xl mx-auto">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-gray-200 pb-6">
+          <div>
+            <h1 class="text-3xl font-extrabold text-solve-darker flex items-center gap-3">
+              <span>📝</span> Registro de Auditoría
+            </h1>
+            <p class="text-solve-text-muted mt-1 text-base font-medium">Historial completo de actividades del sistema</p>
+          </div>
+
+          <button class="bg-white border border-gray-300 hover:bg-gray-50 text-solve-darker font-bold py-2.5 px-6 rounded-xl transition-colors text-sm shadow-sm flex items-center gap-2">
+            Descargar CSV
+          </button>
+        </div>
+
+        <div class="bg-white border border-solve-gray rounded-xl shadow-sm flex flex-col">
+
+          <div class="overflow-x-auto rounded-t-xl">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="text-xs text-solve-text-muted font-bold uppercase tracking-wider border-b border-gray-200 bg-gray-50">
+                  <th class="py-4 px-6">ID Log</th>
+                  <th class="py-4 px-6">Fecha y Hora</th>
+                  <th class="py-4 px-6">Usuario</th>
+                  <th class="py-4 px-6">Acción</th>
+                  <th class="py-4 px-6">Detalles</th>
+                  <th class="py-4 px-6">Dirección IP</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm font-medium text-solve-darker">
+                @for (log of paginatedLogs(); track log.id) {
+                  <tr class="border-b border-gray-100 last:border-b-0 hover:bg-solve-pale/20 transition-colors">
+                    <td class="py-3 px-6 text-gray-500">#{{ log.id }}</td>
+                    <td class="py-3 px-6">{{ log.fechaHora }}</td>
+                    <td class="py-3 px-6 text-solve-primary font-bold">{{ log.usuario }}</td>
+                    <td class="py-3 px-6">
+                      <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-gray-100 text-gray-700">
+                        {{ log.accion }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-6 truncate max-w-xs" [title]="log.detalles">{{ log.detalles }}</td>
+                    <td class="py-3 px-6 text-gray-400 font-mono text-xs">{{ log.ip }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-center gap-4 rounded-b-xl">
+            <span class="text-sm font-medium text-gray-500">
+              Mostrando <span class="font-bold text-solve-darker">{{ startIndexDisplay() }}</span> a
+              <span class="font-bold text-solve-darker">{{ endIndexDisplay() }}</span> de
+              <span class="font-bold text-solve-darker">{{ logs().length }}</span> registros
+            </span>
+
+            <div class="flex items-center gap-2">
+              <button
+                (click)="prevPage()"
+                [disabled]="currentPage() === 1"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-solve-darker hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                Anterior
+              </button>
+
+              <span class="text-sm font-bold text-solve-primary px-2">
+                Página {{ currentPage() }} de {{ totalPages() }}
+              </span>
+
+              <button
+                (click)="nextPage()"
+                [disabled]="currentPage() === totalPages()"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-bold text-solve-darker hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                Siguiente
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>

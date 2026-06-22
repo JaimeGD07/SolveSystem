@@ -7,7 +7,7 @@ import { CategoriaCatalogo } from '../../../../core/models/catalogo.model';
 
 @Component({
   selector: 'app-gestion-catalogos',
-  imports: [SidebarComponent, HeaderComponent, RouterLink],
+  imports: [SidebarComponent, HeaderComponent], //routerlink quitado del import
   templateUrl: './gestion-catalogos.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })

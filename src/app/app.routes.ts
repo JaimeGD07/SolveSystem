@@ -70,6 +70,10 @@ export const routes: Routes = [
     path: 'reportes',
     loadComponent: () => import('./features/admin/pages/reportes/reportes.component').then(m => m.ReportesComponent)
   },
+  {
+    path: 'auditoria',
+    loadComponent: () => import('./features/admin/pages/auditoria/auditoria.component').then(m => m.AuditoriaComponent)
+  },
   // {
   //   path: 'config',
   //   canActivate: [authGuard],
@@ -86,14 +90,14 @@ export const routes: Routes = [
   //       .then((m) => m.PlaceholderPageComponent),
   //   data: { title: 'Reportes Generales' }
   // },
-  {
-    path: 'auditoria',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
-    data: { title: 'Bitácora de Auditoría' }
-  },
+  // {
+  //   path: 'auditoria',
+  //   canActivate: [authGuard],
+  //   loadComponent: () =>
+  //     import('./features/placeholder-page/placeholder-page.component')
+  //       .then((m) => m.PlaceholderPageComponent),
+  //   data: { title: 'Bitácora de Auditoría' }
+  // },
   {
     path: 'respuestas',
     canActivate: [authGuard],

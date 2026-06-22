@@ -15,7 +15,7 @@ interface Rol {
 
 @Component({
   selector: 'app-gestion-roles',
-  imports: [SidebarComponent, HeaderComponent, RouterLink],
+  imports: [SidebarComponent, HeaderComponent], //routerlink quitado del import
   templateUrl: './gestion-roles.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
