@@ -1,5 +1,4 @@
 <div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
-
   <app-sidebar></app-sidebar>
 
   <div class="flex-1 flex flex-col h-screen overflow-hidden">
@@ -8,52 +7,69 @@
     <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
       <div class="max-w-6xl mx-auto">
 
+        <div class="bg-blue-50 border-l-4 border-solve-primary p-4 rounded-r-xl mb-6 shadow-sm flex items-start gap-3">
+          <span class="text-xl">💡</span>
+          <p class="text-xs text-solve-dark-alt font-medium">
+            <span class="font-bold text-solve-darker block mb-0.5">Políticas del Sistema:</span>
+            Los roles de tipo <span class="font-bold text-solve-primary">Sistema</span> (Administrator, Surveyor, Surveyed) son estructurales, heredan capacidades globales fijas y no admiten modificaciones ni eliminación física para preservar la integridad operacional.
+          </p>
+        </div>
+
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 class="text-3xl font-extrabold text-solve-darker flex items-center gap-2">
-              <span class="text-solve-text-muted">👥</span> Gestion de roles
+              <span class="text-solve-text-muted">👥</span> Gestión de roles
             </h1>
-            <p class="text-solve-text-muted mt-1 text-base font-medium">Administrar roles y permisos del sistema</p>
+            <p class="text-solve-text-muted mt-1 text-base font-medium">Administrar roles y capacidades del sistema</p>
           </div>
 
-          <button class="bg-solve-pale hover:bg-solve-pale-strong text-solve-darker font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm border border-transparent">
-            + Crear rol
+          <button (click)="abrirCrear()"
+                  class="bg-solve-pale hover:bg-solve-pale-strong text-solve-darker font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm cursor-pointer border border-solve-darker/20">
+            + Crear rol personalizado
           </button>
         </div>
 
-        <div class="bg-white border border-solve-gray rounded-xl p-6 shadow-sm mb-6">
-          <h2 class="text-xl font-bold text-solve-darker mb-2">Todos los Roles</h2>
-          <p class="text-solve-light text-sm font-medium">Total: {{ roles().length }} roles</p>
-        </div>
-
         <div class="bg-white border border-solve-gray rounded-xl p-6 shadow-sm">
-          <div class="overflow-x-auto rounded-lg border border-solve-darker">
-            <table class="w-full text-center border-collapse">
+          <div class="overflow-x-auto rounded-xl border border-solve-darker">
+            <table class="w-full text-left border-collapse table-fixed">
               <thead>
-                <tr class="text-sm text-solve-darker font-bold border-b border-solve-darker bg-white">
-                  <th class="py-3 px-4 border-r border-solve-darker w-1/4">Nombre</th>
-                  <th class="py-3 px-4 border-r border-solve-darker w-2/4">Descripcion</th>
-                  <th class="py-3 px-4 border-r border-solve-darker w-1/8">Tipo</th>
-                  <th class="py-3 px-4 w-1/8">acciones</th>
+                <tr class="bg-solve-pale/50 text-solve-darker text-sm font-bold border-b border-solve-darker">
+                  <th class="py-3 px-4 w-1/5 border-r border-solve-darker">Rol</th>
+                  <th class="py-3 px-4 w-1/4 border-r border-solve-darker">Descripción</th>
+                  <th class="py-3 px-4 w-2/5 border-r border-solve-darker">Permisos Asignados</th>
+                  <th class="py-3 px-4 w-1/6 text-center">Acciones</th>
                 </tr>
               </thead>
               <tbody class="text-sm font-medium text-solve-darker bg-white">
                 @for (rol of roles(); track rol.id) {
                   <tr class="border-b border-solve-darker last:border-b-0 hover:bg-solve-pale/30 transition-colors">
-                    <td class="py-3 px-4 border-r border-solve-darker">{{ rol.nombre }}</td>
-                    <td class="py-3 px-4 border-r border-solve-darker">{{ rol.descripcion }}</td>
-                    <td class="py-3 px-4 border-r border-solve-darker">{{ rol.tipo }}</td>
-                    <td class="py-3 px-4">
-                      <div class="flex items-center justify-center gap-3">
-                        <button class="text-solve-light hover:text-solve-primary transition-colors" title="Editar">✏️</button>
-                        <button (click)="eliminarRol(rol.id)" class="text-red-500 hover:text-red-700 transition-colors" title="Eliminar">🗑️</button>
+                    <td class="py-3 px-4 border-r border-solve-darker font-bold">
+                      <div class="flex items-center gap-2">
+                        @if (rol.tipo === 'Sistema') { <span title="Rol de Sistema Protegido">🔒</span> }
+                        {{ rol.nombre }}
                       </div>
                     </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="4" class="py-8 text-center text-solve-text-muted font-medium">
-                      No hay roles configurados en el sistema.
+                    <td class="py-3 px-4 border-r border-solve-darker text-xs text-solve-text-muted truncate">{{ rol.descripcion }}</td>
+
+                    <td class="py-3 px-4 border-r border-solve-darker">
+                      <div class="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
+                        @for (permiso of rol.permisos; track permiso) {
+                          <span class="bg-solve-pale/70 text-solve-darker text-[10px] font-bold px-2 py-0.5 rounded border border-solve-darker/30">
+                            {{ permiso }}
+                          </span>
+                        }
+                      </div>
+                    </td>
+
+                    <td class="py-3 px-4 text-center">
+                      @if (rol.tipo === 'Sistema') {
+                        <span class="text-xs text-solve-text-muted font-bold italic bg-gray-50 px-2 py-1 rounded border border-gray-200">Lectura</span>
+                      } @else {
+                        <div class="flex items-center justify-center gap-4">
+                          <button (click)="abrirEditar(rol)" class="text-solve-light hover:text-solve-primary transition-colors cursor-pointer text-base" title="Editar Rol">✏️</button>
+                          <button (click)="abrirEliminar(rol)" class="text-red-500 hover:text-red-700 transition-colors cursor-pointer text-base" title="Eliminar Rol">🗑️</button>
+                        </div>
+                      }
                     </td>
                   </tr>
                 }
@@ -66,3 +82,61 @@
     </main>
   </div>
 </div>
+
+@if (isRoleModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white border border-solve-gray rounded-xl shadow-xl max-w-lg w-full mx-4 overflow-hidden">
+
+      <div class="bg-solve-pale/30 px-6 py-4 border-b border-solve-gray flex justify-between items-center">
+        <h3 class="text-lg font-bold text-solve-darker flex items-center gap-2">
+          <span>👥</span> {{ modalMode() === 'create' ? 'Crear Nuevo Rol Personalizado' : 'Editar Características del Rol' }}
+        </h3>
+        <button (click)="cerrarRoleModal()" class="text-solve-text-muted hover:text-solve-darker font-bold text-xl cursor-pointer">&times;</button>
+      </div>
+
+      <form [formGroup]="roleForm" (ngSubmit)="guardarRol()" class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-solve-dark-alt mb-1">Nombre del Rol</label>
+            <input type="text" formControlName="nombre" placeholder="Ej: Auditor Interno"
+                   class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs focus:outline-none focus:border-solve-primary" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-solve-dark-alt mb-1">Clasificación de Origen</label>
+            <select formControlName="tipo"
+                    class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs bg-gray-50 font-bold text-solve-text-muted">
+              <option value="Personalizado">Personalizado</option>
+              <option value="Sistema">Sistema</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-solve-dark-alt mb-1">Descripción Funcional</label>
+          <textarea formControlName="descripcion" rows="2" placeholder="Escribe el propósito del perfil en el sistema..."
+                    class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs focus:outline-none focus:border-solve-primary resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-solve-dark-alt mb-2">Asignación de Permisos del Sistema</label>
+          <div class="border border-solve-gray rounded-lg p-3 bg-gray-50/50 space-y-2 max-h-40 overflow-y-auto" formArrayName="permisosSeleccionados">
+            @for (control of permisosFormArray.controls; track $index) {
+              <label class="flex items-center gap-3 text-xs font-medium text-solve-darker cursor-pointer hover:bg-white p-1 rounded transition-colors">
+                <input type="checkbox" [formControlName]="$index" class="rounded border-gray-300 text-solve-primary focus:ring-solve-primary h-4 w-4" />
+                <span>{{ PERMISOS_SISTEMA[$index] }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3 border-t border-solve-gray">
+          <button type="button" (click)="cerrarRoleModal()" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold text-xs rounded-lg cursor-pointer">Cancelar</button>
+          <button type="submit" [disabled]="roleForm.invalid" class="px-4 py-2 bg-solve-primary text-white font-bold text-xs rounded-lg disabled:bg-gray-300 cursor-pointer">
+            {{ modalMode() === 'create' ? 'Crear' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+}

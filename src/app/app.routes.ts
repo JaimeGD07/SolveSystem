@@ -67,6 +67,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/pages/gestion-catalogos/gestion-catalogos.component').then(m => m.GestionCatalogosComponent)
   },
   {
+    path: 'config/parametros',
+    loadComponent: () => import('./features/admin/pages/configuracion/configuracion-sistema.component').then(m => m.ConfiguracionSistemaComponent)
+  },
+  {
     path: 'reportes',
     loadComponent: () => import('./features/admin/pages/reportes/reportes.component').then(m => m.ReportesComponent)
   },

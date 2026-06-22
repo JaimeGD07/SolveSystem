@@ -1,0 +1,179 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <div class="max-w-6xl mx-auto">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          <div>
+            <h1 class="text-3xl font-extrabold text-solve-darker flex items-center gap-2">
+              <span class="text-solve-text-muted">⚙️</span> Configuración del sistema
+            </h1>
+            <p class="text-solve-text-muted mt-1 text-base font-medium">Variables globales y parámetros de control del negocio</p>
+          </div>
+
+          <button (click)="abrirCrear()"
+                  class="bg-solve-pale hover:bg-solve-pale-strong text-solve-darker font-bold py-2.5 px-6 rounded-xl transition-colors flex items-center gap-2 text-sm shadow-sm border border-solve-darker/20 cursor-pointer">
+            + Nuevo Parámetro
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div class="bg-white p-4 border border-solve-gray rounded-xl shadow-sm">
+            <p class="text-xs font-bold text-solve-text-muted uppercase tracking-wider">🔒 Seguridad</p>
+            <p class="text-2xl font-black mt-1 text-solve-dark-alt">
+              {{ parametros().filter(p => p.categoria === 'Seguridad').length }} variables
+            </p>
+          </div>
+          <div class="bg-white p-4 border border-solve-gray rounded-xl shadow-sm">
+            <p class="text-xs font-bold text-solve-text-muted uppercase tracking-wider">📊 Encuestas</p>
+            <p class="text-2xl font-black mt-1 text-solve-primary">
+              {{ parametros().filter(p => p.categoria === 'Encuestas').length }} variables
+            </p>
+          </div>
+          <div class="bg-white p-4 border border-solve-gray rounded-xl shadow-sm">
+            <p class="text-xs font-bold text-solve-text-muted uppercase tracking-wider">⚙️ General</p>
+            <p class="text-2xl font-black mt-1 text-solve-light">
+              {{ parametros().filter(p => p.categoria === 'General').length }} variables
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white border border-solve-gray rounded-xl p-6 shadow-sm">
+          <div class="overflow-x-auto rounded-xl border border-solve-darker">
+            <table class="w-full text-left border-collapse table-fixed">
+              <thead>
+                <tr class="bg-solve-pale/50 text-solve-darker text-sm font-bold border-b border-solve-darker">
+                  <th class="py-3 px-4 w-1/4 border-r border-solve-darker">Clave / Llave</th>
+                  <th class="py-3 px-4 w-1/6 border-r border-solve-darker">Categoría</th>
+                  <th class="py-3 px-4 w-1/5 border-r border-solve-darker">Valor Configurado</th>
+                  <th class="py-3 px-4 w-1/4 border-r border-solve-darker">Descripción</th>
+                  <th class="py-3 px-4 w-1/8 text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody class="text-sm font-medium text-solve-darker bg-white">
+                @for (param of parametros(); track param.id) {
+                  <tr class="border-b border-solve-darker last:border-b-0 hover:bg-solve-pale/30 transition-colors">
+                    <td class="py-3 px-4 border-r border-solve-darker font-mono text-xs text-solve-dark-alt truncate" [title]="param.clave">
+                      {{ param.clave }}
+                    </td>
+                    <td class="py-3 px-4 border-r border-solve-darker text-xs">
+                      <span class="px-2 py-0.5 rounded-full border text-[10px] font-bold"
+                            [class.bg-red-50]="param.categoria === 'Seguridad'"
+                            [class.text-red-700]="param.categoria === 'Seguridad'"
+                            [class.border-red-300]="param.categoria === 'Seguridad'"
+                            [class.bg-blue-50]="param.categoria === 'Encuestas'"
+                            [class.text-blue-700]="param.categoria === 'Encuestas'"
+                            [class.border-blue-300]="param.categoria === 'Encuestas'"
+                            [class.bg-gray-50]="param.categoria === 'General'"
+                            [class.text-gray-700]="param.categoria === 'General'"
+                            [class.border-gray-300]="param.categoria === 'General'">
+                        {{ param.categoria }}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 border-r border-solve-darker text-solve-primary font-bold truncate">{{ param.valor }}</td>
+                    <td class="py-3 px-4 border-r border-solve-darker text-xs text-solve-text-muted truncate">{{ param.descripcion }}</td>
+                    <td class="py-3 px-4">
+                      <div class="flex items-center justify-center gap-4 text-base">
+                        <button (click)="abrirEditar(param)" class="text-solve-light hover:text-solve-primary transition-colors cursor-pointer" title="Modificar Valor">✏️</button>
+                        <button (click)="abrirEliminar(param)" class="text-red-500 hover:text-red-700 transition-colors cursor-pointer" title="Remover Variable">🗑️</button>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="5" class="py-8 text-center text-solve-text-muted font-medium">
+                      No se encontraron parámetros globales activos.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+@if (isConfigModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white border border-solve-gray rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+
+      <div class="bg-solve-pale/30 px-6 py-4 border-b border-solve-gray flex justify-between items-center">
+        <h3 class="text-lg font-bold text-solve-darker flex items-center gap-2">
+          <span>⚙️</span> {{ modalMode() === 'create' ? 'Nuevo Parámetro' : 'Modificar Parámetro' }}
+        </h3>
+        <button (click)="cerrarConfigModal()" class="text-solve-text-muted hover:text-solve-darker font-bold text-xl cursor-pointer">&times;</button>
+      </div>
+
+      <form [formGroup]="configForm" (ngSubmit)="guardarParametro()" class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-solve-dark-alt mb-1">Clave Técnica (Identificador Único)</label>
+          <input type="text" formControlName="clave" placeholder="Ej: TOKEN_EXPIRATION_TIME"
+                 class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs font-mono uppercase focus:outline-none focus:border-solve-primary disabled:bg-gray-100 disabled:text-gray-400" />
+          @if (configForm.get('clave')?.touched && configForm.get('clave')?.errors?.['pattern']) {
+            <p class="text-[10px] text-red-500 font-semibold mt-1">Formato inválido. Use solo MAYÚSCULAS y guiones bajos (_).</p>
+          }
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-solve-dark-alt mb-1">Valor Operativo</label>
+            <input type="text" formControlName="valor" placeholder="Ej: 3600"
+                   class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs focus:outline-none focus:border-solve-primary" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-solve-dark-alt mb-1">Categoría de Contexto</label>
+            <select formControlName="categoria"
+                    class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs bg-white focus:outline-none focus:border-solve-primary">
+              <option value="General">General</option>
+              <option value="Seguridad">Seguridad</option>
+              <option value="Encuestas">Encuestas</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-solve-dark-alt mb-1">Descripción Funcional</label>
+          <textarea formControlName="descripcion" rows="3" placeholder="Explique detalladamente qué controla este parámetro..."
+                    class="w-full px-3 py-2 border border-solve-text-muted/40 rounded-lg text-xs focus:outline-none focus:border-solve-primary resize-none"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3 border-t border-solve-gray">
+          <button type="button" (click)="cerrarConfigModal()" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold text-xs rounded-lg cursor-pointer">Cancelar</button>
+          <button type="submit" [disabled]="configForm.invalid" class="px-4 py-2 bg-solve-primary text-white font-bold text-xs rounded-lg disabled:bg-gray-300 cursor-pointer">
+            {{ modalMode() === 'create' ? 'Configurar' : 'Actualizar' }}
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+}
+
+@if (isDeleteModalOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white border border-solve-gray rounded-xl shadow-xl max-w-sm w-full mx-4 overflow-hidden">
+
+      <div class="p-6 text-center">
+        <div class="text-red-500 text-4xl mb-3">⚠️</div>
+        <h3 class="text-lg font-bold text-solve-darker mb-2">¿Eliminar parámetro global?</h3>
+        <p class="text-solve-text-muted text-sm mb-6">
+          Estás por remover <span class="font-mono font-bold text-solve-dark-alt">"{{ selectedParam()?.clave }}"</span>. Si el backend de Spring Boot depende de esta clave y no encuentra un fallback, podría generar excepciones en producción.
+        </p>
+
+        <div class="flex justify-center gap-3">
+          <button (click)="cerrarEliminar()" class="px-4 py-2 bg-gray-100 text-gray-700 font-bold text-xs rounded-lg cursor-pointer">Abortar</button>
+          <button (click)="confirmarEliminar()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg cursor-pointer">Sí, remover</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+}
