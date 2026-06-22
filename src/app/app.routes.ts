@@ -67,21 +67,25 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/pages/gestion-catalogos/gestion-catalogos.component').then(m => m.GestionCatalogosComponent)
   },
   {
-    path: 'config',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
-    data: { title: 'Configuración del Sistema' }
-  },
-  {
     path: 'reportes',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
-    data: { title: 'Reportes Generales' }
+    loadComponent: () => import('./features/admin/pages/reportes/reportes.component').then(m => m.ReportesComponent)
   },
+  // {
+  //   path: 'config',
+  //   canActivate: [authGuard],
+  //   loadComponent: () =>
+  //     import('./features/placeholder-page/placeholder-page.component')
+  //       .then((m) => m.PlaceholderPageComponent),
+  //   data: { title: 'Configuración del Sistema' }
+  // },
+  // {
+  //   path: 'reportes',
+  //   canActivate: [authGuard],
+  //   loadComponent: () =>
+  //     import('./features/placeholder-page/placeholder-page.component')
+  //       .then((m) => m.PlaceholderPageComponent),
+  //   data: { title: 'Reportes Generales' }
+  // },
   {
     path: 'auditoria',
     canActivate: [authGuard],

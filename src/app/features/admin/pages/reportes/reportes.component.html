@@ -1,0 +1,59 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <div class="max-w-6xl mx-auto">
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-gray-200 pb-6">
+          <div>
+            <h1 class="text-3xl font-extrabold text-solve-darker flex items-center gap-3">
+              <span>📈</span> Reportes Generales del Sistema
+            </h1>
+            <p class="text-solve-text-muted mt-1 text-base font-medium">Métricas globales y estado de salud de la plataforma</p>
+          </div>
+
+          <button class="bg-white border border-gray-300 hover:bg-gray-50 text-solve-darker font-bold py-2.5 px-6 rounded-xl transition-colors text-sm shadow-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Exportar PDF
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <app-metric-card title="Total Usuarios" value="300" subtitle="+12% este mes" />
+          <app-metric-card title="Encuestas Activas" value="143" subtitle="En curso actualmente" />
+          <app-metric-card title="Respuestas Globales" value="12.5K" subtitle="Almacenadas en BD" />
+          <app-metric-card title="Tasa de Crecimiento" value="8.4%" subtitle="Adopción del sistema" />
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+
+          <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm col-span-1 lg:col-span-1 flex flex-col">
+            <h2 class="text-lg font-bold text-solve-darker mb-1">Distribución de Usuarios</h2>
+            <p class="text-xs text-solve-text-muted font-medium mb-6">Agrupados por rol del sistema</p>
+            <div class="w-full grow min-h-[250px] relative flex justify-center items-center">
+              <canvas #usuariosChart></canvas>
+              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none pb-4">
+                <span class="text-3xl font-extrabold text-solve-darker">300</span>
+                <span class="text-xs font-bold text-solve-text-muted">Total</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-gray-300 rounded-2xl p-6 shadow-sm col-span-1 lg:col-span-2 flex flex-col">
+            <h2 class="text-lg font-bold text-solve-darker mb-1">Actividad de Creación</h2>
+            <p class="text-xs text-solve-text-muted font-medium mb-6">Volumen de encuestas creadas por mes</p>
+            <div class="w-full grow min-h-[250px]">
+              <canvas #actividadChart></canvas>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
