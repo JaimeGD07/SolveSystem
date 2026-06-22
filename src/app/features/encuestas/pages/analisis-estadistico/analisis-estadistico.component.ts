@@ -67,24 +67,23 @@ interface SurveyOption {
                       <p class="text-2xl font-black text-solve-primary mt-1">{{ totalParticipantes() }}</p>
                     </div>
                   </div>
-
                   <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm flex items-center gap-4">
-                    <div class="w-12 h-12 bg-green-50 dark:bg-green-950/30 rounded-xl flex items-center justify-center text-green-600 dark:text-green-450 text-xl font-bold">
+                    <div class="w-12 h-12 bg-green-50 dark:bg-green-950/30 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 text-xl font-bold">
                       📊
                     </div>
                     <div>
                       <p class="text-xs font-bold text-solve-text-muted dark:text-gray-400 uppercase tracking-wider">Tasa de Completitud</p>
-                      <p class="text-2xl font-black text-green-600 dark:text-green-405 mt-1">{{ completitud() }}%</p>
+                      <p class="text-2xl font-black text-green-600 dark:text-green-400 mt-1">{{ completitud() }}%</p>
                     </div>
                   </div>
 
                   <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm flex items-center gap-4">
-                    <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-405 text-xl font-bold">
+                    <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xl font-bold">
                       ⏱️
                     </div>
                     <div>
                       <p class="text-xs font-bold text-solve-text-muted dark:text-gray-400 uppercase tracking-wider">Tiempo Promedio</p>
-                      <p class="text-2xl font-black text-indigo-600 dark:text-indigo-405 mt-1">{{ tiempoPromedio() }} min</p>
+                      <p class="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ tiempoPromedio() }} min</p>
                     </div>
                   </div>
                 </div>
@@ -104,7 +103,7 @@ interface SurveyOption {
                             {{ q.codTipoPre === TipoPregunta.ABIERTA ? 'Texto Abierto' : q.codTipoPre === TipoPregunta.ESCALA_LIKERT || q.codTipoPre === TipoPregunta.ESCALA_NUMERICA ? 'Escala Numérica' : 'Opciones' }}
                           </span>
                         </div>
-                        <h3 class="text-xs font-bold text-gray-850 dark:text-gray-200 leading-snug">
+                        <h3 class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-snug">
                           {{ q.enunciado }}
                         </h3>
                       </div>
@@ -183,6 +182,7 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
 
   // Instancias de gráficos activos para destruirlas en cambios
   private activeCharts: Map<number, Chart> = new Map();
+  private themeObserver: MutationObserver | null = null;
 
   constructor() {
     // Escucha cambios en las preguntas métricas y dibuja los gráficos correspondientes
@@ -199,10 +199,14 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.cargarEncuestas();
+    this.setupThemeObserver();
   }
 
   ngOnDestroy(): void {
     this.destruirGraficos();
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
   }
 
   cargarEncuestas(): void {
@@ -407,6 +411,10 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
   }
 
   inicializarGraficos(preguntas: any[]): void {
+    const isDark = document.documentElement.classList.contains('dark');
+    const labelColor = isDark ? '#9ca3af' : '#6b7280';
+    const gridColor = isDark ? '#374151' : '#f3f4f6';
+
     preguntas.forEach(q => {
       if (q.codTipoPre === TipoPregunta.ABIERTA) return;
 
@@ -428,7 +436,7 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
           datasets: [{
             data: q.datos?.valores || [],
             backgroundColor: bgColors,
-            borderColor: '#ffffff',
+            borderColor: isDark ? '#1f2937' : '#ffffff',
             borderWidth: 1.5
           }]
         },
@@ -441,6 +449,7 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
               position: 'bottom',
               labels: {
                 boxWidth: 8,
+                color: labelColor,
                 font: { size: 8, weight: 'bold' }
               }
             }
@@ -448,10 +457,12 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
           scales: !isDoughnut ? {
             y: {
               beginAtZero: true,
-              ticks: { font: { size: 8, weight: 'bold' } }
+              ticks: { color: labelColor, font: { size: 8, weight: 'bold' } },
+              grid: { color: gridColor }
             },
             x: {
-              ticks: { font: { size: 8, weight: 'bold' } }
+              ticks: { color: labelColor, font: { size: 8, weight: 'bold' } },
+              grid: { display: false }
             }
           } : undefined
         }
@@ -459,6 +470,26 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
 
       this.activeCharts.set(q.codPre, chart);
     });
+  }
+
+  setupThemeObserver(): void {
+    if (typeof window !== 'undefined' && 'MutationObserver' in window) {
+      this.themeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'class') {
+            const preguntas = this.preguntasReporte();
+            if (preguntas.length > 0) {
+              this.destruirGraficos();
+              this.inicializarGraficos(preguntas);
+            }
+          }
+        });
+      });
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
   }
 
   destruirGraficos(): void {

@@ -45,22 +45,22 @@ Chart.register(...registerables);
               </div>
 
               <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-green-50 dark:bg-green-950/30 rounded-xl flex items-center justify-center text-green-600 dark:text-green-450 text-xl font-bold">
-                  📝
+                <div class="w-12 h-12 bg-green-50 dark:bg-green-950/30 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 text-xl font-bold">
+                  📋
                 </div>
                 <div>
                   <p class="text-xs font-bold text-solve-text-muted dark:text-gray-400 uppercase tracking-wider">Preguntas Respondidas</p>
-                  <p class="text-2xl font-black text-green-600 dark:text-green-405 mt-1">{{ totalPreguntas() }}</p>
+                  <p class="text-2xl font-black text-green-600 dark:text-green-400 mt-1">{{ totalPreguntas() }}</p>
                 </div>
               </div>
 
               <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm flex items-center gap-4">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-405 text-xl font-bold">
+                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-950/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xl font-bold">
                   ⏱️
                 </div>
                 <div>
                   <p class="text-xs font-bold text-solve-text-muted dark:text-gray-400 uppercase tracking-wider">Tiempo Estimado</p>
-                  <p class="text-lg font-black text-indigo-600 dark:text-indigo-405 mt-1">{{ tiempoEstimado() }} min</p>
+                  <p class="text-lg font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ tiempoEstimado() }} min</p>
                 </div>
               </div>
             </div>
@@ -126,6 +126,7 @@ Chart.register(...registerables);
 export class HistorialComponent implements OnInit, OnDestroy {
   participaciones = signal<any[]>([]);
   private chart: Chart | null = null;
+  private themeObserver: MutationObserver | null = null;
 
   // Fallback mocks en local para robustez de la demo
   private readonly mockParticipaciones = [
@@ -165,11 +166,15 @@ export class HistorialComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.cargarHistorial();
     this.inicializarGraficoConRetraso();
+    this.setupThemeObserver();
   }
 
   ngOnDestroy(): void {
     if (this.chart) {
       this.chart.destroy();
+    }
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
     }
   }
 
@@ -221,6 +226,9 @@ export class HistorialComponent implements OnInit, OnDestroy {
     const labels = Object.keys(categoriasMapa);
     const dataValues = Object.values(categoriasMapa);
 
+    const isDark = document.documentElement.classList.contains('dark');
+    const labelColor = isDark ? '#9ca3af' : '#6b7280';
+
     this.chart = new Chart(canvas, {
       type: 'doughnut',
       data: {
@@ -228,7 +236,7 @@ export class HistorialComponent implements OnInit, OnDestroy {
         datasets: [{
           data: dataValues,
           backgroundColor: ['#0891b2', '#6366f1', '#ec4899', '#f59e0b'],
-          borderColor: '#ffffff',
+          borderColor: isDark ? '#1f2937' : '#ffffff',
           borderWidth: 2
         }]
       },
@@ -240,6 +248,7 @@ export class HistorialComponent implements OnInit, OnDestroy {
             position: 'bottom',
             labels: {
               boxWidth: 10,
+              color: labelColor,
               font: {
                 size: 9,
                 weight: 'bold'
@@ -249,6 +258,25 @@ export class HistorialComponent implements OnInit, OnDestroy {
         }
       }
     });
+  }
+
+  setupThemeObserver(): void {
+    if (typeof window !== 'undefined' && 'MutationObserver' in window) {
+      this.themeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'class') {
+            if (this.chart) {
+              this.chart.destroy();
+            }
+            this.crearGrafico();
+          }
+        });
+      });
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
   }
 
   formatearFecha(fechaStr: string): string {

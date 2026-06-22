@@ -1,4 +1,4 @@
-<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+<div class="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden font-sans text-solve-darker dark:text-gray-100 transition-colors duration-300">
 
   <app-sidebar></app-sidebar>
 
@@ -10,31 +10,31 @@
 
         <!-- Botón Retroceder y Título -->
         <div class="mb-6">
-          <a routerLink="/dashboard" class="inline-flex items-center gap-2 text-solve-text-muted hover:text-solve-primary font-bold text-sm mb-4 transition-colors">
+          <a routerLink="/dashboard" class="inline-flex items-center gap-2 text-solve-text-muted hover:text-solve-primary dark:text-gray-400 dark:hover:text-solve-primary font-bold text-sm mb-4 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             Volver atras
           </a>
           <h1 class="text-3xl font-extrabold text-solve-primary">Nueva Encuesta</h1>
-          <p class="text-solve-text-muted mt-1">Crea una encuesta personalizada con varios tipos de preguntas</p>
+          <p class="text-solve-text-muted dark:text-gray-400 mt-1">Crea una encuesta personalizada con varios tipos de preguntas</p>
         </div>
 
         <form [formGroup]="encuestaForm" (ngSubmit)="onSubmit()" class="space-y-6">
 
           <!-- CONFIGURACIÓN BÁSICA -->
-          <div class="bg-white border border-solve-primary rounded-xl p-6 shadow-sm">
+          <div class="bg-white dark:bg-gray-900 border border-solve-primary dark:border-gray-800 rounded-xl p-6 shadow-sm">
             <h2 class="text-lg font-bold text-solve-primary mb-4">Configuración de la Encuesta / Survey Settings</h2>
 
             <div class="space-y-4">
               <div>
                 <label class="block text-sm font-bold text-solve-primary mb-1">Titulo / Title</label>
                 <input type="text" formControlName="titulo" placeholder="Ej: Satisfacción del Cliente"
-                       class="w-full text-sm text-solve-primary placeholder-blue-300 outline-none border-b border-gray-200 focus:border-solve-primary transition-colors py-1 bg-transparent">
+                       class="w-full text-sm text-solve-primary dark:text-solve-secondary placeholder-blue-300 dark:placeholder-gray-600 outline-none border-b border-gray-200 dark:border-gray-800 focus:border-solve-primary transition-colors py-1 bg-transparent">
               </div>
 
               <div>
                 <label class="block text-sm font-bold text-solve-primary mb-1">Descripcion / Description</label>
                 <input type="text" formControlName="descripcion" placeholder="Describe el propósito de tu encuesta..."
-                       class="w-full text-sm text-solve-primary placeholder-blue-300 outline-none border-b border-gray-200 focus:border-solve-primary transition-colors py-1 bg-transparent">
+                       class="w-full text-sm text-solve-primary dark:text-solve-secondary placeholder-blue-300 dark:placeholder-gray-600 outline-none border-b border-gray-200 dark:border-gray-800 focus:border-solve-primary transition-colors py-1 bg-transparent">
               </div>
 
             </div>
@@ -48,32 +48,32 @@
               <!-- Cuidado aquí: usamos pIdx para el ciclo principal -->
               @for (pregunta of preguntas.controls; track pIdx; let pIdx = $index) {
 
-                <div [formGroupName]="pIdx" class="bg-white border rounded-xl overflow-hidden shadow-sm transition-all" [class.border-solve-primary]="expandedQuestionIndex() === pIdx" [class.border-gray-300]="expandedQuestionIndex() !== pIdx">
+                <div [formGroupName]="pIdx" class="bg-white dark:bg-gray-900 border rounded-xl overflow-hidden shadow-sm transition-all" [class.border-solve-primary]="expandedQuestionIndex() === pIdx" [class.border-gray-300]="expandedQuestionIndex() !== pIdx" [class.dark:border-solve-primary]="expandedQuestionIndex() === pIdx" [class.dark:border-gray-800]="expandedQuestionIndex() !== pIdx">
 
-                  <div (click)="toggleQuestion(pIdx)" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 transition-colors">
-                    <span class="text-xl font-extrabold text-black">P.{{ pIdx + 1 }}</span>
+                  <div (click)="toggleQuestion(pIdx)" class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <span class="text-xl font-extrabold text-black dark:text-white">P.{{ pIdx + 1 }}</span>
                     <div class="text-center flex-1">
                       <p class="text-solve-primary font-bold text-sm">
                         {{ pregunta.get('enunciado')?.value || 'Pregunta sin titulo / Untitled Question' }}
                       </p>
                     </div>
-                    <svg class="w-6 h-6 text-solve-primary transition-transform duration-200" [class.rotate-180]="expandedQuestionIndex() === pIdx" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-6 h-6 text-solve-primary transition-transform duration-200" [class.rotate-180]="expandedQuestionIndex() === pIdx" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7-7-7-7"></path></svg>
                   </div>
 
                   @if (expandedQuestionIndex() === pIdx) {
-                    <div class="p-6 border-t border-gray-200 bg-white">
+                    <div class="p-6 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                       <div class="space-y-6">
 
                         <div>
                           <label class="block text-sm font-bold text-solve-primary mb-2">Texto de la pregunta / Question Text</label>
                           <input type="text" formControlName="enunciado" placeholder="¿Cuál es tu pregunta?"
-                                 class="w-full text-sm text-solve-primary placeholder-blue-300 outline-none border-b border-gray-200 focus:border-solve-primary transition-colors py-1">
+                                 class="w-full text-sm text-solve-primary dark:text-solve-secondary placeholder-blue-300 dark:placeholder-gray-600 outline-none border-b border-gray-200 dark:border-gray-800 focus:border-solve-primary transition-colors py-1 bg-transparent">
                         </div>
 
                         <!-- Tipos de Pregunta Basados en Oracle -->
                         <div>
                           <label class="block text-sm font-bold text-solve-primary mb-2">Tipo de Pregunta / Question Type</label>
-                          <select formControlName="codTipoPre" (change)="onTipoPreChange(pIdx)" class="w-full text-sm text-blue-600 font-medium outline-none border-b border-gray-200 focus:border-solve-primary py-2 cursor-pointer bg-blue-50/50">
+                          <select formControlName="codTipoPre" (change)="onTipoPreChange(pIdx)" class="w-full text-sm text-blue-600 dark:text-blue-400 font-medium outline-none border-b border-gray-200 dark:border-gray-800 focus:border-solve-primary py-2 cursor-pointer bg-blue-50/50 dark:bg-gray-800">
                             <option [value]="1">Respuesta Abierta / Open Text</option>
                             <option [value]="2">Dicotómica (Falso/Verdadero, Sí/No)</option>
                             <option [value]="3">Politómica (Elección única / Radio)</option>
@@ -85,25 +85,25 @@
                         </div>
 
                         <!-- RENDERIZADO DINÁMICO SEGÚN EL TIPO ELEGIDO -->
-                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px] flex flex-col justify-center">
+                        <div class="p-4 bg-gray-50 dark:bg-gray-950/40 rounded-lg border border-gray-200 dark:border-gray-800 min-h-[100px] flex flex-col justify-center">
 
                           @switch (+pregunta.get('codTipoPre')?.value) {
 
                             @case (1) {
                               <!-- RESPUESTA ABIERTA -->
-                              <p class="text-xs text-gray-500 italic mb-2">Previsualización para el encuestado:</p>
-                              <div class="border-b border-gray-400 border-dashed pb-2 text-gray-400 text-sm">El usuario escribirá su respuesta aquí...</div>
+                              <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Previsualización para el encuestado:</p>
+                              <div class="border-b border-gray-400 dark:border-gray-700 border-dashed pb-2 text-gray-400 dark:text-gray-500 text-sm">El usuario escribirá su respuesta aquí...</div>
                             }
 
                             @case (2) {
                               <!-- DICOTÓMICA (Falso/Verdadero, Sí/No) -->
-                              <p class="text-xs text-gray-500 italic mb-2">Opciones automáticas (No editables):</p>
+                              <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Opciones automáticas (No editables):</p>
                               <div class="flex gap-4">
-                                <label class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm cursor-not-allowed">
+                                <label class="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm cursor-not-allowed text-gray-950 dark:text-white">
                                   <input type="radio" disabled class="w-4 h-4 text-solve-primary">
                                   <span class="text-sm font-medium">Verdadero</span>
                                 </label>
-                                <label class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm cursor-not-allowed">
+                                <label class="flex items-center gap-2 bg-white dark:bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm cursor-not-allowed text-gray-950 dark:text-white">
                                   <input type="radio" disabled class="w-4 h-4 text-solve-primary">
                                   <span class="text-sm font-medium">Falso</span>
                                 </label>
@@ -113,11 +113,11 @@
                             @case (3) {
                               <!-- POLITÓMICA (Elección Única) -->
                               <div formArrayName="opciones" class="space-y-3 w-full">
-                                <p class="text-xs text-gray-500 italic mb-2">Opciones de respuesta (Selección única):</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Opciones de respuesta (Selección única):</p>
                                 @for (opcion of getOpciones(pIdx).controls; track oIdx; let oIdx = $index) {
                                   <div [formGroupName]="oIdx" class="flex items-center gap-3">
-                                    <div class="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
-                                    <input type="text" formControlName="opcion" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
+                                    <div class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-700 flex-shrink-0"></div>
+                                    <input type="text" formControlName="opcion" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-solve-primary outline-none px-1 py-1 text-gray-900 dark:text-white">
                                     <button type="button" (click)="removeOpcion(pIdx, oIdx)" class="text-gray-400 hover:text-red-500 transition-colors">
                                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
@@ -132,11 +132,11 @@
                             @case (4) {
                               <!-- ELECCION_MULTIPLE (Casillas / Checkboxes) -->
                               <div formArrayName="opciones" class="space-y-3 w-full">
-                                <p class="text-xs text-gray-500 italic mb-2">Opciones de respuesta (Selección múltiple):</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Opciones de respuesta (Selección múltiple):</p>
                                 @for (opcion of getOpciones(pIdx).controls; track oIdx; let oIdx = $index) {
                                   <div [formGroupName]="oIdx" class="flex items-center gap-3">
-                                    <div class="w-4 h-4 rounded border-2 border-gray-300 flex-shrink-0"></div>
-                                    <input type="text" formControlName="opcion" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
+                                    <div class="w-4 h-4 rounded border-2 border-gray-300 dark:border-gray-700 flex-shrink-0"></div>
+                                    <input type="text" formControlName="opcion" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-solve-primary outline-none px-1 py-1 text-gray-900 dark:text-white">
                                     <button type="button" (click)="removeOpcion(pIdx, oIdx)" class="text-gray-400 hover:text-red-500 transition-colors">
                                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
@@ -151,11 +151,11 @@
                             @case (5) {
                               <!-- RANKING -->
                               <div formArrayName="opciones" class="space-y-3 w-full">
-                                <p class="text-xs text-gray-500 italic mb-2">Elementos para ordenar en el ranking:</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Elementos para ordenar en el ranking:</p>
                                 @for (opcion of getOpciones(pIdx).controls; track oIdx; let oIdx = $index) {
                                   <div [formGroupName]="oIdx" class="flex items-center gap-3">
                                     <span class="text-xs font-bold text-gray-400 w-5">{{ oIdx + 1 }}.</span>
-                                    <input type="text" formControlName="opcion" placeholder="Escribe un elemento..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
+                                    <input type="text" formControlName="opcion" placeholder="Escribe un elemento..." class="flex-1 text-sm bg-transparent border-b border-gray-300 dark:border-gray-700 focus:border-solve-primary outline-none px-1 py-1 text-gray-900 dark:text-white">
                                     <button type="button" (click)="removeOpcion(pIdx, oIdx)" class="text-gray-400 hover:text-red-500 transition-colors">
                                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
@@ -170,15 +170,15 @@
                             @case (6) {
                               <!-- ESCALA LIKERT (1-5) -->
                               <div>
-                                <p class="text-xs text-gray-500 italic mb-2">Previsualización de la escala Likert (1 al 5):</p>
-                                <div class="flex justify-between items-center gap-2 bg-white p-3 rounded-lg border border-gray-200 shadow-sm max-w-md mx-auto">
-                                  <span class="text-xs text-solve-text-muted">Totalmente en desacuerdo</span>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Previsualización de la escala Likert (1 al 5):</p>
+                                <div class="flex justify-between items-center gap-2 bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm max-w-md mx-auto">
+                                  <span class="text-xs text-solve-text-muted dark:text-gray-400">Totalmente en desacuerdo</span>
                                   <div class="flex gap-2">
                                     @for (num of [1, 2, 3, 4, 5]; track num) {
-                                      <span class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-500">{{ num }}</span>
+                                      <span class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-400 bg-transparent">{{ num }}</span>
                                     }
                                   </div>
-                                  <span class="text-xs text-solve-text-muted">Totalmente de acuerdo</span>
+                                  <span class="text-xs text-solve-text-muted dark:text-gray-400">Totalmente de acuerdo</span>
                                 </div>
                               </div>
                             }
@@ -186,11 +186,11 @@
                             @case (7) {
                               <!-- ESCALA NUMÉRICA (1-10) -->
                               <div>
-                                <p class="text-xs text-gray-500 italic mb-2">Previsualización de la escala numérica (1 al 10):</p>
-                                <div class="flex flex-col gap-2 items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm max-w-md mx-auto">
+                                <p class="text-xs text-gray-500 dark:text-gray-400 italic mb-2">Previsualización de la escala numérica (1 al 10):</p>
+                                <div class="flex flex-col gap-2 items-center bg-white dark:bg-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm max-w-md mx-auto">
                                   <div class="flex gap-1.5 flex-wrap justify-center">
                                     @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track num) {
-                                      <span class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-500">{{ num }}</span>
+                                      <span class="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center text-sm font-bold text-gray-500 dark:text-gray-400 bg-transparent">{{ num }}</span>
                                     }
                                   </div>
                                 </div>
@@ -204,16 +204,16 @@
                         </div>
 
                         <!-- Toggle Obligatoria y Eliminar -->
-                        <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <div class="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800">
                           <div class="flex items-center gap-3">
                             <label class="relative inline-flex items-center cursor-pointer">
                               <input type="checkbox" formControlName="obligatoria" class="sr-only peer">
-                              <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-solve-primary"></div>
+                              <div class="w-11 h-6 bg-gray-200 dark:bg-gray-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-gray-700 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-solve-primary"></div>
                             </label>
                             <span class="text-sm font-bold text-solve-primary">Obligatoria</span>
                           </div>
 
-                          <button type="button" (click)="removePregunta(pIdx)" class="flex items-center gap-2 px-4 py-1.5 bg-red-100 text-red-700 font-bold text-sm rounded hover:bg-red-200 transition-colors">
+                          <button type="button" (click)="removePregunta(pIdx)" class="flex items-center gap-2 px-4 py-1.5 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 font-bold text-sm rounded hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors">
                             Eliminar 🗑️
                           </button>
                         </div>
@@ -224,14 +224,14 @@
               }
             </div>
 
-            <button type="button" (click)="addPregunta()" class="w-full mt-4 py-3 bg-cyan-100 hover:bg-cyan-200 text-solve-darker font-bold rounded-xl transition-colors shadow-sm text-sm">
+            <button type="button" (click)="addPregunta()" class="w-full mt-4 py-3 bg-cyan-100 dark:bg-cyan-950/40 hover:bg-cyan-200 dark:hover:bg-cyan-900/40 text-solve-darker dark:text-gray-100 border border-transparent dark:border-cyan-950 font-bold rounded-xl transition-colors shadow-sm text-sm">
               Añadir Pregunta / Add Question
             </button>
           </div>
 
           <!-- Acciones del Formulario Integradas -->
-          <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
-            <a routerLink="/encuestas" class="px-6 py-2.5 bg-cyan-50 hover:bg-cyan-100 text-solve-darker font-bold rounded-lg transition-colors text-sm">
+          <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+            <a routerLink="/encuestas" class="px-6 py-2.5 bg-cyan-50 dark:bg-gray-800 hover:bg-cyan-100 dark:hover:bg-gray-700 text-solve-darker dark:text-gray-100 font-bold rounded-lg transition-colors text-sm">
               Cancelar / Cancel
             </a>
             <button type="submit" class="px-6 py-2.5 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-lg transition-colors text-sm shadow-sm">

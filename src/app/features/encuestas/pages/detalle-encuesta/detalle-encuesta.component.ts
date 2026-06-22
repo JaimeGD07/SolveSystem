@@ -12,7 +12,7 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
   selector: 'app-detalle-encuesta',
   imports: [CommonModule, RouterLink, SidebarComponent, HeaderComponent, FooterComponent],
   template: `
-    <div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-950 overflow-hidden font-sans text-solve-darker dark:text-gray-100 transition-colors duration-300">
       <app-sidebar></app-sidebar>
 
       <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
@@ -23,35 +23,35 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
             
             <!-- Botón Volver -->
             <div class="mb-6">
-              <a routerLink="/encuestas" class="inline-flex items-center gap-2 text-solve-text-muted hover:text-solve-primary font-bold text-sm mb-4 transition-colors">
+              <a routerLink="/encuestas" class="inline-flex items-center gap-2 text-solve-text-muted hover:text-solve-primary dark:text-gray-400 dark:hover:text-solve-primary font-bold text-sm mb-4 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                 Volver a Encuestas
               </a>
               <h1 class="text-3xl font-extrabold text-solve-primary">Detalle de Encuesta</h1>
-              <p class="text-solve-text-light text-sm mt-1">Estructura y configuración técnica de la encuesta publicada</p>
+              <p class="text-solve-text-light dark:text-gray-400 text-sm mt-1">Estructura y configuración técnica de la encuesta publicada</p>
             </div>
 
             @if (encuesta()) {
               <!-- Ficha Técnica -->
-              <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-8">
+              <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm mb-8">
                 <h2 class="text-xl font-bold text-solve-primary mb-3">{{ encuesta().titulo }}</h2>
-                <p class="text-solve-text-light text-sm mb-6 leading-relaxed">
+                <p class="text-solve-text-light dark:text-gray-400 text-sm mb-6 leading-relaxed">
                   {{ encuesta().descripcion || 'Sin descripción disponible.' }}
                 </p>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                    <span class="text-[10px] font-bold text-solve-text-light uppercase tracking-wider">Preguntas</span>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
+                    <span class="text-[10px] font-bold text-solve-text-light dark:text-gray-400 uppercase tracking-wider">Preguntas</span>
                     <p class="text-2xl font-black text-solve-primary mt-1">{{ encuesta().preguntas?.length || 0 }}</p>
                   </div>
-                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                    <span class="text-[10px] font-bold text-solve-text-light uppercase tracking-wider">Tipo Acceso</span>
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
+                    <span class="text-[10px] font-bold text-solve-text-light dark:text-gray-400 uppercase tracking-wider">Tipo Acceso</span>
                     <p class="text-sm font-black text-solve-primary mt-2">
                       {{ encuesta().anonimas ? '🔒 Anónima' : '👤 Autenticada' }}
                     </p>
                   </div>
-                  <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center">
-                    <span class="text-[10px] font-bold text-solve-text-light uppercase tracking-wider">Fecha Publicación</span>
+                  <div class="bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-800 text-center">
+                    <span class="text-[10px] font-bold text-solve-text-light dark:text-gray-400 uppercase tracking-wider">Fecha Publicación</span>
                     <p class="text-sm font-black text-solve-primary mt-2">22/06/2026</p>
                   </div>
                 </div>
@@ -62,25 +62,25 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
                 <h3 class="text-lg font-bold text-solve-primary">Preguntas Configuradas</h3>
 
                 @for (preg of encuesta().preguntas; track preg.codPre; let idx = $index) {
-                  <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                  <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
                       <div class="flex items-center gap-2">
-                        <span class="text-xs font-black text-solve-primary bg-blue-50 px-2 py-1 rounded">
+                        <span class="text-xs font-black text-solve-primary dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-1 rounded border dark:border-blue-900/30">
                           P.{{ idx + 1 }}
                         </span>
-                        <h4 class="text-sm font-bold text-gray-800">{{ preg.enunciado }}</h4>
+                        <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200">{{ preg.enunciado }}</h4>
                       </div>
 
                       <div class="flex gap-2">
-                        <span class="text-[10px] font-bold text-solve-primary bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-lg">
+                        <span class="text-[10px] font-bold text-solve-primary dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/30 px-2 py-0.5 rounded-lg">
                           {{ obtenerNombreTipoPregunta(preg.codTipoPre) }}
                         </span>
                         @if (preg.obligatoria === 1) {
-                          <span class="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-lg">
+                          <span class="text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900/30 px-2 py-0.5 rounded-lg">
                             Obligatoria
                           </span>
                         } @else {
-                          <span class="text-[10px] font-bold text-gray-600 bg-gray-50 border border-gray-150 px-2 py-0.5 rounded-lg">
+                          <span class="text-[10px] font-bold text-gray-400 bg-gray-50 dark:bg-gray-950/40 border border-gray-200 dark:border-gray-800 px-2 py-0.5 rounded-lg">
                             Opcional
                           </span>
                         }
@@ -89,12 +89,12 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
 
                     <!-- Renderizado de Opciones en modo lectura -->
                     @if (preg.opciones && preg.opciones.length > 0) {
-                      <div class="bg-gray-50/50 p-4 rounded-xl border border-gray-150 space-y-2">
-                        <p class="text-[10px] font-bold text-solve-text-light uppercase tracking-wider mb-2">Opciones de Respuesta:</p>
+                      <div class="bg-gray-100 dark:bg-gray-900/40 p-4 rounded-xl border border-gray-200 dark:border-gray-800 space-y-2">
+                        <p class="text-[10px] font-bold text-solve-text-light dark:text-gray-400 uppercase tracking-wider mb-2">Opciones de Respuesta:</p>
                         
                         @if (preg.codTipoPre === TipoPregunta.ESCALA_LIKERT || preg.codTipoPre === TipoPregunta.ESCALA_NUMERICA) {
                           <div class="flex gap-2 items-center">
-                            <span class="text-xs text-gray-500 font-bold">Rango:</span>
+                            <span class="text-xs text-gray-500 dark:text-gray-400 font-bold">Rango:</span>
                             <span class="text-xs text-solve-primary font-black">
                               {{ preg.opciones[0].valorMin || 1 }} al {{ preg.opciones[0].valorMax || (preg.codTipoPre === TipoPregunta.ESCALA_LIKERT ? 5 : 10) }}
                             </span>
@@ -102,7 +102,7 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
                         } @else {
                           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             @for (opc of preg.opciones; track opc.orden) {
-                              <div class="flex items-center gap-2 text-xs font-semibold text-gray-700">
+                              <div class="flex items-center gap-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
                                 <span class="text-solve-primary">▪</span>
                                 <span>{{ opc.opcion }}</span>
                               </div>
@@ -111,7 +111,7 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
                         }
                       </div>
                     } @else {
-                      <div class="text-xs italic text-gray-400 bg-gray-50/30 p-3 rounded-lg border border-dashed border-gray-200">
+                      <div class="text-xs italic text-gray-400 bg-gray-50/30 dark:bg-gray-950/20 p-3 rounded-lg border border-dashed border-gray-200 dark:border-gray-800">
                         Esta pregunta no requiere opciones predefinidas (respuesta libre por texto).
                       </div>
                     }
@@ -122,7 +122,7 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
               <!-- Loading Spinner -->
               <div class="text-center py-20">
                 <div class="w-12 h-12 border-4 border-solve-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p class="text-solve-text-muted font-bold text-sm">Cargando detalles de la encuesta...</p>
+                <p class="text-solve-text-muted dark:text-gray-400 font-bold text-sm">Cargando detalles de la encuesta...</p>
               </div>
             }
           </div>

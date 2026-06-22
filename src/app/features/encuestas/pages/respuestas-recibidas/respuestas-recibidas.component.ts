@@ -58,13 +58,13 @@ interface Participacion {
                   <input type="text" 
                          (input)="onSearchChange($event)"
                          placeholder="Buscar por participante/email..." 
-                         class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:border-solve-primary bg-gray-50/50 dark:bg-gray-850/50 text-gray-950 dark:text-white">
+                         class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:border-solve-primary bg-gray-50/50 dark:bg-gray-800/50 text-gray-950 dark:text-white">
                 </div>
 
                 <!-- Selector de Encuesta -->
                 <div class="w-full md:max-w-xs">
                   <select (change)="onSurveyFilterChange($event)"
-                          class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:border-solve-primary bg-gray-50/50 dark:bg-gray-850/50 text-gray-950 dark:text-white">
+                          class="w-full px-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-xl focus:outline-none focus:border-solve-primary bg-gray-50/50 dark:bg-gray-800/50 text-gray-950 dark:text-white">
                     <option value="">Todas las encuestas</option>
                     @for (title of titulosEncuestas(); track title) {
                       <option [value]="title">{{ title }}</option>
@@ -92,10 +92,10 @@ interface Participacion {
                              [class.border-solve-primary]="seleccionada()?.id === item.id"
                              [class.border-gray-200]="seleccionada()?.id !== item.id"
                              [class.dark:border-solve-primary]="seleccionada()?.id === item.id"
-                             [class.dark:border-gray-850]="seleccionada()?.id !== item.id">
+                             [class.dark:border-gray-800]="seleccionada()?.id !== item.id">
                           <div>
                             <div class="flex justify-between items-start gap-2 mb-2">
-                              <span class="text-xs font-black text-solve-primary truncate dark:text-blue-450 block max-w-[170px]" [title]="item.email">
+                              <span class="text-xs font-black text-solve-primary truncate dark:text-blue-400 block max-w-[170px]" [title]="item.email">
                                 {{ item.email }}
                               </span>
                               <span class="text-[9px] font-bold text-solve-text-light whitespace-nowrap">
@@ -106,7 +106,7 @@ interface Participacion {
                               {{ item.tituloEncuesta }}
                             </h4>
                           </div>
-                          <div class="flex justify-end mt-3 border-t border-gray-100 dark:border-gray-850 pt-2 text-[10px] font-black text-solve-primary">
+                          <div class="flex justify-end mt-3 border-t border-gray-100 dark:border-gray-800 pt-2 text-[10px] font-black text-solve-primary">
                             Auditar respuestas →
                           </div>
                         </div>
@@ -129,7 +129,7 @@ interface Participacion {
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm space-y-6">
                       
                       <!-- Datos del Participante -->
-                      <div class="border-b border-gray-100 dark:border-gray-850 pb-4">
+                      <div class="border-b border-gray-100 dark:border-gray-800 pb-4">
                         <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
                           <span class="text-xs font-black text-solve-primary bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded border border-blue-100 dark:border-blue-900/40">
                             Participante Auditado
@@ -147,12 +147,12 @@ interface Participacion {
                       <!-- Listado de Preguntas y Respuestas del usuario -->
                       <div class="space-y-4">
                         @for (r of seleccionada()?.respuestas; track r.codPre; let idx = $index) {
-                          <div class="border border-gray-150 dark:border-gray-800 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-950/20">
+                          <div class="border border-gray-200 dark:border-gray-800 rounded-xl p-4 bg-gray-50/50 dark:bg-gray-950/20">
                             <div class="flex items-start gap-2 mb-3">
                               <span class="text-[10px] font-black text-solve-primary bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">
                                 P.{{ idx + 1 }}
                               </span>
-                              <h4 class="text-xs font-bold text-gray-850 dark:text-gray-200 leading-snug">{{ r.enunciado }}</h4>
+                              <h4 class="text-xs font-bold text-gray-800 dark:text-gray-200 leading-snug">{{ r.enunciado }}</h4>
                             </div>
 
                             <div class="pl-8">

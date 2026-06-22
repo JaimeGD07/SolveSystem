@@ -25,16 +25,21 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
 
   analitica = signal<AnaliticaEncuestaResponse | null>(null);
   private charts: Chart[] = [];
+  private themeObserver: MutationObserver | null = null;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.cargarResultados(id);
     }
+    this.setupThemeObserver();
   }
 
   ngOnDestroy(): void {
     this.charts.forEach(c => c.destroy());
+    if (this.themeObserver) {
+      this.themeObserver.disconnect();
+    }
   }
 
   cargarResultados(id: number): void {
@@ -153,6 +158,10 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
     const data = this.analitica();
     if (!data) return;
 
+    const isDark = document.documentElement.classList.contains('dark');
+    const labelColor = isDark ? '#9ca3af' : '#6b7280';
+    const gridColor = isDark ? '#374151' : '#f3f4f6';
+
     data.metricasPreguntas.forEach((pregunta) => {
       if (pregunta.codTipoPre === TipoPregunta.ABIERTA) return;
 
@@ -188,7 +197,7 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
           datasets: [{
             data: values,
             backgroundColor: backgroundColors,
-            borderColor: '#ffffff',
+            borderColor: isDark ? '#1f2937' : '#ffffff',
             borderWidth: chartType === 'bar' ? 0 : 2,
             borderRadius: chartType === 'bar' ? 6 : 0
           }]
@@ -202,6 +211,7 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
               position: 'bottom',
               labels: {
                 boxWidth: 12,
+                color: labelColor,
                 font: {
                   size: 11,
                   weight: 'bold'
@@ -214,12 +224,13 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
               beginAtZero: true,
               ticks: {
                 stepSize: 1,
+                color: labelColor,
                 font: {
                   size: 10
                 }
               },
               grid: {
-                color: '#f3f4f6'
+                color: gridColor
               }
             },
             x: {
@@ -227,6 +238,7 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
                 display: false
               },
               ticks: {
+                color: labelColor,
                 font: {
                   size: 10,
                   weight: 'bold'
@@ -239,5 +251,21 @@ export class ResultadosEncuestaComponent implements OnInit, OnDestroy {
 
       this.charts.push(chart);
     });
+  }
+
+  setupThemeObserver(): void {
+    if (typeof window !== 'undefined' && 'MutationObserver' in window) {
+      this.themeObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.attributeName === 'class') {
+            this.crearGraficos();
+          }
+        });
+      });
+      this.themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class']
+      });
+    }
   }
 }

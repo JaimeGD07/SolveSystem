@@ -56,7 +56,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
                   <div>
                     <label class="block text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Nombre Completo</label>
                     <input type="text" formControlName="nombre" 
-                           class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-250 dark:border-gray-700 rounded-xl text-sm text-gray-950 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-solve-primary focus:border-transparent transition-all"
+                           class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm text-gray-950 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-solve-primary focus:border-transparent transition-all"
                            [class.border-red-500]="prefForm.get('nombre')?.touched && prefForm.get('nombre')?.invalid"
                            placeholder="Ingresa tu nombre completo">
                     @if (prefForm.get('nombre')?.touched && prefForm.get('nombre')?.hasError('required')) {
