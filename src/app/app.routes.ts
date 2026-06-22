@@ -6,7 +6,9 @@ import { guestGuard } from './core/guards/guest.guard';
 export const routes: Routes = [
   {
     path: '', // Ruta raíz
-    loadComponent: () => import('./features/auth/pages/landing/landing.component').then(m => m.LandingComponent),
+    loadComponent: () =>
+      import('./features/auth/pages/landing/landing.component')
+        .then(m => m.LandingComponent),
     // Puedes protegerlo con guestGuard si no quieres que usuarios ya logueados la vean
   },
 
@@ -34,8 +36,11 @@ export const routes: Routes = [
         .then((m) => m.ENCUESTAS_ROUTES),
   },
 
+  //**
+  //  { path: '**', redirectTo: 'dashboard',}, */
+
   {
     path: '**',
-    redirectTo: 'dashboard',
-  },
+    loadComponent: () => import('./features/errors/pages/not-found/not-found.component').then(m => m.NotFoundComponent)
+  }
 ];

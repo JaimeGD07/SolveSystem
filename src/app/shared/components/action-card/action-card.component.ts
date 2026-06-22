@@ -10,7 +10,7 @@ import { RouterLink } from '@angular/router';
 
       <h3 class="text-sm font-bold text-solve-darker mb-2 min-h-[40px]">{{ title() }}</h3>
 
-      <p class="text-xs text-solve-blue-dash flex-grow mb-4">{{ description() }}</p>
+      <p class="text-xs text-solve-blue-dash grow mb-4">{{ description() }}</p>
 
       <a [routerLink]="routePath()" class="w-full py-2 bg-solve-pale-strong hover:bg-solve-pale text-solve-darker font-bold rounded-lg transition-colors text-sm">
         {{ buttonText() }}

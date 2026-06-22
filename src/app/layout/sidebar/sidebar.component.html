@@ -42,35 +42,35 @@
         <span class="text-xl shrink-0">➕</span>
         @if (!isCollapsed()) { <span class="text-sm font-semibold">Crear</span> }
       </a>
-      <a routerLink="/encuestas" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/encuestas" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">📋</span>
-        <span class="text-sm font-semibold">Encuest</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Encuestas</span> }
       </a>
-      <a routerLink="/respuestas" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/respuestas" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">📩</span>
-        <span class="text-sm font-semibold">Resp</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Respuestas</span> }
       </a>
-      <a routerLink="/analisis" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/analisis" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">📉</span>
-        <span class="text-sm font-semibold">Analisis</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Análisis</span> }
       </a>
       }
     @if (userRole() === 'ENCUESTADO') {
-      <a routerLink="/encuestas-disponibles" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/encuestas-disponibles" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">👥</span>
-        <span class="text-sm font-semibold">Encuest</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Encuestas Disponibles</span> }
       </a>
-      <a routerLink="/mis-respuestas" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/mis-respuestas" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">⚙️</span>
-        <span class="text-sm font-semibold">Respuestas</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Respuestas</span> }
       </a>
-      <a routerLink="/historial" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/historial" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">📈</span>
-        <span class="text-sm font-semibold">Historial</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Historial</span> }
       </a>
-      <a routerLink="/preferencias" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all">
+      <a routerLink="/preferencias" class="flex items-center gap-4 px-4 py-3 text-solve-text-muted hover:text-solve-dark hover:bg-blue-50 rounded-lg transition-all" [class.px-4]="!isCollapsed()" [class.justify-center]="isCollapsed()">
         <span class="text-xl">📝</span>
-        <span class="text-sm font-semibold">Preferencs</span>
+        @if (!isCollapsed()) { <span class="text-sm font-semibold">Preferencias</span> }
       </a>
     }
   </nav>

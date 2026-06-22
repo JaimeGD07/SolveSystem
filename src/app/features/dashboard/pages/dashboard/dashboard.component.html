@@ -1,18 +1,52 @@
-<div class="flex h-screen bg-gray-50 overflow-hidden">
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
 
   <app-sidebar></app-sidebar>
 
   <div class="flex-1 flex flex-col h-screen overflow-hidden">
-
     <app-header></app-header>
 
     <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
 
-      <div class="mb-6">
-        <h1 class="text-3xl font-bold text-solve-dark">Resumen General</h1>
-        <p class="text-solve-text-muted mt-1">Bienvenido al sistema de control.</p>
+      <div class="mb-8 border-l-4 border-solve-darker pl-4">
+        <h1 class="text-2xl font-bold">Bienvenido de vuelta</h1>
+        <p class="text-solve-text-light text-sm mt-1 font-medium">
+          @switch (userRole()) {
+            @case ('ADMIN') { Gestiona usuarios, configuración del sistema y análisis general }
+            @case ('ENCUESTADOR') { Crea, distribuye y analiza tus encuestas }
+            @default { Responde encuestas y ve tus respuestas }
+          }
+        </p>
       </div>
 
-      </main>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        @switch (userRole()) {
+          @case ('ADMIN') {
+            <app-action-card title="Gestión de Usuarios" description="Crear, editar y eliminar usuarios" icon="👥" routePath="/gestion" />
+            <app-action-card title="Configuración del Sistema" description="Configurar parámetros del sistema" icon="⚙️" routePath="/config" />
+            <app-action-card title="Reportes Generales" description="Ver análisis del sistema" icon="📊" routePath="/reportes" />
+            <app-action-card title="Auditoría" description="Ver historial de actividades" icon="📝" routePath="/auditoria" />
+          }
+          @case ('ENCUESTADOR') {
+            <app-action-card title="Crear Encuesta" description="Crear una nueva encuesta" icon="➕" routePath="/encuestas/crear" />
+            <app-action-card title="Mis Encuestas" description="Ver y gestionar tus encuestas" icon="📋" routePath="/encuestas" />
+            <app-action-card title="Respuestas" description="Ver respuestas recibidas" icon="📩" routePath="/respuestas" />
+            <app-action-card title="Análisis" description="Analizar resultados" icon="📉" routePath="/analisis" />
+          }
+          @default {
+            <app-action-card title="Encuestas Disponibles" description="Encuestas para responder" icon="📄" routePath="/encuestas-disponibles" />
+            <app-action-card title="Mis Respuestas" description="Respuestas que has enviado" icon="✔️" routePath="/mis-respuestas" />
+            <app-action-card title="Historial" description="Ver tu historial de participación" icon="⏱️" routePath="/historial" />
+            <app-action-card title="Preferencias" description="Configurar tus preferencias" icon="⚙️" routePath="/preferencias" />
+          }
+        }
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <app-metric-card title="Encuestas Activas" value="0" subtitle="Encuestas en progreso" />
+        <app-metric-card title="Respuestas Recibidas" value="0" subtitle="Total de respuestas" />
+        <app-metric-card title="Tasa de Respuesta" value="0%" subtitle="Promedio de participación" />
+      </div>
+
+    </main>
   </div>
 </div>
