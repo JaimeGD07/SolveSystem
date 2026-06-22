@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core'; //se agrega inject para el archivo csv
+import { AuditoriaService } from '../../../../core/services/auditoria.service';
 import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { AuditoriaLog } from '../../../../core/models/auditoria.model';
@@ -10,6 +11,7 @@ import { AuditoriaLog } from '../../../../core/models/auditoria.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AuditoriaComponent {
+  private auditoriaService = inject(AuditoriaService); // inyecta el servicio al inicio de la clase
   // Generamos 23 logs simulados para probar las 3 páginas
   logs = signal<AuditoriaLog[]>(Array.from({ length: 23 }, (_, i) => ({
     id: 1000 + i,
@@ -48,5 +50,23 @@ export class AuditoriaComponent {
     if (this.currentPage() > 1) {
       this.currentPage.update(p => p - 1);
     }
+  }
+  // función para exportar
+  descargarCSV(): void {
+    this.auditoriaService.exportarCsvAuditoria().subscribe({
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const enlace = document.createElement('a');
+        enlace.href = url;
+        // Nombre del archivo con la fecha actual
+        enlace.download = `Auditoria_Solve_${new Date().toISOString().split('T')[0]}.csv`;
+        enlace.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al descargar el CSV de auditoría:', err);
+        // Aquí podrías mostrar un Toast o alerta de error en el futuro
+      }
+    });
   }
 }
