@@ -38,4 +38,15 @@ export class HeaderComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }
+
+  onThemeToggle(): void {
+    const classList = document.documentElement.classList;
+    if (classList.contains('dark')) {
+      classList.remove('dark');
+      localStorage.setItem('solve_theme', 'light');
+    } else {
+      classList.add('dark');
+      localStorage.setItem('solve_theme', 'dark');
+    }
+  }
 }

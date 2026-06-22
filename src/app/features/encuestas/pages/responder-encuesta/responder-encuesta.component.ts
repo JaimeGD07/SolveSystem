@@ -235,13 +235,51 @@ export class ResponderEncuestaComponent implements OnInit {
 
     this.encuestaService.enviarRespuestas(payload).subscribe({
       next: () => {
+        this.guardarEnLocalStorage(enc, respuestas);
         this.success.set(true);
       },
       error: () => {
         console.log('Simulando envío exitoso para fines de demostración.');
+        this.guardarEnLocalStorage(enc, respuestas);
         this.success.set(true);
       }
     });
+  }
+
+  guardarEnLocalStorage(encuesta: any, respuestas: any[]): void {
+    try {
+      const savedStr = localStorage.getItem('solve_respuestas_usuario');
+      const list = savedStr ? JSON.parse(savedStr) : [];
+      
+      const nuevoRegistro = {
+        codEnc: encuesta.id,
+        titulo: encuesta.titulo,
+        descripcion: encuesta.descripcion,
+        fechaEnvio: new Date().toISOString(),
+        respuestas: respuestas.map(r => {
+          const preguntaObj = encuesta.preguntas.find((p: any) => p.codPre === r.codPre);
+          return {
+            codPre: r.codPre,
+            enunciado: preguntaObj ? preguntaObj.enunciado : 'Pregunta sin enunciado',
+            codTipoPre: preguntaObj ? preguntaObj.codTipoPre : 1,
+            textoRespuesta: r.textoRespuesta,
+            valorNumerico: r.valorNumerico,
+            opcionesSeleccionadasIds: r.opcionesSeleccionadasIds,
+            opcionesTexto: r.opcionesSeleccionadasIds && preguntaObj && preguntaObj.opciones
+              ? preguntaObj.opciones
+                  .filter((o: any) => r.opcionesSeleccionadasIds.includes(o.codOpc || o.codOpcResp))
+                  .map((o: any) => o.opcion)
+              : []
+          };
+        })
+      };
+
+      const filterList = list.filter((item: any) => item.codEnc !== encuesta.id);
+      filterList.unshift(nuevoRegistro);
+      localStorage.setItem('solve_respuestas_usuario', JSON.stringify(filterList));
+    } catch (e) {
+      console.error('Error al persistir respuestas en localStorage:', e);
+    }
   }
 
   resetearLlenado(): void {

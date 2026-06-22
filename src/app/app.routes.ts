@@ -73,16 +73,16 @@ export const routes: Routes = [
     path: 'respuestas',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
+      import('./features/encuestas/pages/respuestas-recibidas/respuestas-recibidas.component')
+        .then((m) => m.RespuestasRecibidasComponent),
     data: { title: 'Buzón de Respuestas Recibidas' }
   },
   {
     path: 'analisis',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
+      import('./features/encuestas/pages/analisis-estadistico/analisis-estadistico.component')
+        .then((m) => m.AnalisisEstadisticoComponent),
     data: { title: 'Análisis Estadístico' }
   },
   {
@@ -94,24 +94,24 @@ export const routes: Routes = [
     path: 'mis-respuestas',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
+      import('./features/encuestas/pages/mis-respuestas/mis-respuestas.component')
+        .then((m) => m.MisRespuestasComponent),
     data: { title: 'Mis Respuestas Enviadas' }
   },
   {
     path: 'historial',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
+      import('./features/encuestas/pages/historial/historial.component')
+        .then((m) => m.HistorialComponent),
     data: { title: 'Historial de Participación' }
   },
   {
     path: 'preferencias',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
+      import('./features/encuestas/pages/preferencias/preferencias.component')
+        .then((m) => m.PreferenciasComponent),
     data: { title: 'Preferencias de Cuenta' }
   },
 
