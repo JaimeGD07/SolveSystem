@@ -1,6 +1,3 @@
-// ---------------------------------------------------------
-// ENUMS DE DOMINIO (Mapeo exacto de la tabla TIPO_PREGUNTA)
-// ---------------------------------------------------------
 export enum TipoPregunta {
   ABIERTA = 1,
   DICOTOMICA = 2,
@@ -8,89 +5,92 @@ export enum TipoPregunta {
   ELECCION_MULTIPLE = 4,
   RANKING = 5,
   ESCALA_LIKERT = 6,
-  ESCALA_NUMERICA = 7
+  ESCALA_NUMERICA = 7,
+  ESCALA_NOMINAL = 8,
+  MIXTA = 9
 }
 
-// ---------------------------------------------------------
-// DTOs DE LECTURA (GET) - Para el Dashboard
-// ---------------------------------------------------------
 export interface Encuesta {
-  id: number;              // Mapea a COD_ENC
-  titulo: string;          // Mapea a TITULO
-  descripcion?: string;    // Mapea a DESCRIPCION
-  numeroPreguntas: number; // Mapea a NUM_PREGUNTAS
-  fechaCreacion: string;   // Mapea a FECH_CREA
-  numeroRespuestas?: number; // Campo calculado opcional (COUNT de respuestas)
-}
-
-// ---------------------------------------------------------
-// DTOs DE ESCRITURA (POST / PUT) - Creación
-// ---------------------------------------------------------
-export interface CrearEncuestaRequest {
+  id?: number;
+  codEnc: number;
   titulo: string;
-  descripcion: string;
+  descripcion?: string;
+  numPreguntas?: number;
+  num_preguntas?: number;
+  numeroPreguntas?: number;
+  fechCrea?: string;
+  fech_crea?: string;
+  fechaCreacion?: string;
+  numeroRespuestas?: number;
+  preguntas?: Pregunta[];
 }
 
-export interface CrearEncuestaCompletaRequest extends CrearEncuestaRequest {
-  preguntas: CrearPreguntaRequest[];
-}
-
-export interface CrearPreguntaRequest {
-  codEnc?: number; 
-  codTipoPre: TipoPregunta;
-  codCat?: number; // Opcional, ya que las abiertas no tienen catálogo
+export interface Pregunta {
+  codPre: number;
+  codEnc?: number;
   enunciado: string;
-  obligatoria: number; // 1 (Sí) o 0 (No)
-  opciones?: OpcionRespuestaRequest[];
+  obligatoria: number;
+  codTipoPre: TipoPregunta;
+  tipoPregunta?: any;
+  codCat?: number | null;
+  opciones: OpcionRespuesta[];
 }
 
-export interface OpcionRespuestaRequest {
-  codPre?: number; 
+export interface OpcionRespuesta {
+  codOpcResp: number;
+  codOpc?: number;
+  codPre?: number;
   opcion: string;
   valor?: number;
-  valorMax?: number;
   valorMin?: number;
+  valorMax?: number;
   orden?: number;
 }
 
-// ---------------------------------------------------------
-// DTOs DE RESPUESTA (POST) - Llenado de Encuestas
-// ---------------------------------------------------------
+export interface CrearEncuestaRequest {
+  titulo: string;
+  descripcion?: string;
+  preguntas?: any[];
+}
+
 export interface RespuestaPreguntaRequest {
   codPre: number;
-  textoRespuesta?: string;      
-  valorNumerico?: number;       
-  opcionesSeleccionadasIds?: number[]; // Arreglo de COD_OPC_RESP
+  codOpcResp?: number | null;
+  codDetCat?: number | null;
+  textoResp?: string | null;
+  valorResp?: number | null;
+  posicionRank?: number | null;
+  opcionesSeleccionadasIds?: number[];
+  textoRespuesta?: string;
+  valorNumerico?: number;
 }
 
 export interface ResponderEncuestaRequest {
+  codUsu: number;
   codEnc: number;
   respuestas: RespuestaPreguntaRequest[];
 }
 
-// ---------------------------------------------------------
-// DTOs DE ANALÍTICA (GET) - Visualización
-// ---------------------------------------------------------
-export interface OpcionFrecuenciaDTO {
+export interface FrecuenciaRespuesta {
   opcion: string;
   frecuencia: number;
   porcentaje: number;
 }
 
-export interface PreguntaMetricasDTO {
+export interface MetricaPregunta {
   codPre: number;
   enunciado: string;
   codTipoPre: TipoPregunta;
   totalRespuestas: number;
-  promedio?: number;                 
-  frecuencias?: OpcionFrecuenciaDTO[]; 
-  respuestasAbiertas?: string[];       
+  frecuencias?: FrecuenciaRespuesta[];
+  promedio?: number;
+  respuestasAbiertas?: string[];
 }
 
 export interface AnaliticaEncuestaResponse {
   codEnc: number;
   titulo: string;
-  descripcion: string;
+  descripcion?: string;
   totalParticipantes: number;
-  metricasPreguntas: PreguntaMetricasDTO[];
+  metricasPreguntas: MetricaPregunta[];
 }

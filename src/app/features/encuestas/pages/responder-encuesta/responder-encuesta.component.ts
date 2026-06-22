@@ -2,11 +2,16 @@ import { Component, OnInit, ChangeDetectionStrategy, inject, signal, computed } 
 import { FormBuilder, ReactiveFormsModule, FormGroup, Validators, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { forkJoin, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { EncuestaService } from '../../../../core/services/encuesta.service';
+import { RespuestaEncuestaService } from '../../../../core/services/responder-encuesta.service';
+import { PreguntaService } from '../../../../core/services/pregunta.service';
+import { OpcionRespuestaService } from '../../../../core/services/opcion-respuesta.service';
 import { TipoPregunta, ResponderEncuestaRequest, RespuestaPreguntaRequest } from '../../../../core/models/encuesta.model';
 
 @Component({
@@ -20,6 +25,9 @@ export class ResponderEncuestaComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private encuestaService = inject(EncuestaService);
+  private respuestaEncuestaService = inject(RespuestaEncuestaService);
+  private preguntaService = inject(PreguntaService);
+  private opcionRespuestaService = inject(OpcionRespuestaService);
 
   readonly TipoPregunta = TipoPregunta;
 
@@ -32,15 +40,30 @@ export class ResponderEncuestaComponent implements OnInit {
   progreso = computed(() => {
     const enc = this.encuesta();
     const fg = this.formGroup();
+
     if (!enc || !fg) return 0;
 
-    const obligatorias = enc.preguntas.filter((p: any) => p.obligatoria === 1);
+    const preguntas = enc.preguntas ?? [];
+    const obligatorias = preguntas.filter((p: any) => Number(p.obligatoria) === 1 || p.obligatoria === true);
+
     if (obligatorias.length === 0) return 100;
 
     let contestadas = 0;
+
     obligatorias.forEach((p: any) => {
-      const control = fg.get(p.codPre.toString());
-      if (control && control.valid && control.value !== null && control.value !== '') {
+      const control = fg.get(String(p.codPre));
+
+      if (!control) return;
+
+      const valor = control.value;
+
+      if (typeof valor === 'object' && valor !== null) {
+        const algunaMarcada = Object.values(valor).some(v => v === true);
+        if (algunaMarcada) contestadas++;
+        return;
+      }
+
+      if (control.valid && valor !== null && valor !== undefined && valor !== '') {
         contestadas++;
       }
     });
@@ -56,102 +79,152 @@ export class ResponderEncuestaComponent implements OnInit {
   }
 
   cargarEncuesta(id: number): void {
-    this.encuestaService.obtenerEncuestaConDetalles(id).subscribe({
-      next: (response) => {
+    this.encuestaService.buscarPorId(id).pipe(
+      switchMap((response: any) => {
         const enc = response.data || response;
-        this.encuesta.set(enc);
-        this.construirFormulario(enc);
+
+        return this.preguntaService.listarPorEncuesta(id).pipe(
+          switchMap((preguntas: any[]) => {
+            const preguntasNormalizadas = (preguntas ?? []).map((p: any) => this.normalizarPregunta(p));
+
+            if (preguntasNormalizadas.length === 0) {
+              return of({
+                ...enc,
+                preguntas: []
+              });
+            }
+
+            const peticionesOpciones = preguntasNormalizadas.map((p: any) =>
+              this.opcionRespuestaService.listarPorPregunta(p.codPre).pipe(
+                map((opciones: any[]) => ({
+                  ...p,
+                  opciones: (opciones ?? []).map((o: any) => this.normalizarOpcion(o))
+                })),
+                catchError(() => of({
+                  ...p,
+                  opciones: []
+                }))
+              )
+            );
+
+            return forkJoin(peticionesOpciones).pipe(
+              map((preguntasConOpciones: any[]) => ({
+                ...enc,
+                preguntas: preguntasConOpciones
+              }))
+            );
+          }),
+          catchError((error) => {
+            console.error('Error al cargar preguntas:', error);
+            console.error('Detalle backend:', error?.error);
+            console.error('Mensaje backend:', error?.error?.mensaje || error?.error?.message);
+
+            return of({
+              ...enc,
+              preguntas: []
+            });
+          })
+        );
+      })
+    ).subscribe({
+      next: (encuestaCompleta: any) => {
+        console.log('Encuesta completa cargada:', encuestaCompleta);
+
+        this.encuesta.set(encuestaCompleta);
+        this.construirFormulario(encuestaCompleta);
       },
-      error: () => {
-        this.cargarMockEncuesta(id);
+      error: (error) => {
+        console.error('Error al cargar encuesta:', error);
+        this.encuesta.set(null);
       }
     });
   }
+  private normalizarPregunta(p: any): any {
+    const tipoNombre = p.tipoPregunta?.nombre || p.tipo || p.nombreTipo;
 
-  cargarMockEncuesta(id: number): void {
-    const mock = {
-      id: id,
-      titulo: 'Encuesta de Satisfacción General (Solve)',
-      descripcion: 'Te invitamos a responder esta encuesta para validar los flujos reactivos de SolveSystem.',
-      anonimas: true,
-      barraProgreso: true,
-      aleatorizar: false,
-      preguntas: [
-        {
-          codPre: 101,
-          enunciado: '¿Qué opinión tienes sobre el desempeño del sistema Solve?',
-          codTipoPre: TipoPregunta.ABIERTA,
-          obligatoria: 1,
-          opciones: []
-        },
-        {
-          codPre: 102,
-          enunciado: '¿Consideras que la reactividad con Angular Signals mejora la velocidad percibida?',
-          codTipoPre: TipoPregunta.DICOTOMICA,
-          obligatoria: 1,
-          opciones: [
-            { codOpc: 201, orden: 1, opcion: 'Verdadero' },
-            { codOpc: 202, orden: 2, opcion: 'Falso' }
-          ]
-        },
-        {
-          codPre: 103,
-          enunciado: '¿Cuál de los siguientes módulos te parece el más importante para la demo?',
-          codTipoPre: TipoPregunta.POLITOMICA,
-          obligatoria: 1,
-          opciones: [
-            { codOpc: 301, orden: 1, opcion: 'Módulo de Creación Dinámica' },
-            { codOpc: 302, orden: 2, opcion: 'Motor de Llenado con Limpieza de Estado' },
-            { codOpc: 303, orden: 3, opcion: 'Gráficos de Resultados en Tiempo Real' }
-          ]
-        },
-        {
-          codPre: 104,
-          enunciado: 'Selecciona todas las herramientas aplicadas en el frontend (Múltiple):',
-          codTipoPre: TipoPregunta.ELECCION_MULTIPLE,
-          obligatoria: 0,
-          opciones: [
-            { codOpc: 401, orden: 1, opcion: 'Angular 21 (Standalone components)' },
-            { codOpc: 402, orden: 2, opcion: 'Tailwind CSS v4' },
-            { codOpc: 403, orden: 3, opcion: 'Chart.js Canvas' },
-            { codOpc: 404, orden: 4, opcion: 'Angular Signals' }
-          ]
-        },
-        {
-          codPre: 105,
-          enunciado: 'Califica la estética visual general (Escala Likert 1-5):',
-          codTipoPre: TipoPregunta.ESCALA_LIKERT,
-          obligatoria: 1,
-          opciones: [{ codOpc: 501, orden: 1, opcion: 'Escala', valorMin: 1, valorMax: 5 }]
-        },
-        {
-          codPre: 106,
-          enunciado: 'Califica la compatibilidad percibida (Escala Numérica 1-10):',
-          codTipoPre: TipoPregunta.ESCALA_NUMERICA,
-          obligatoria: 1,
-          opciones: [{ codOpc: 601, orden: 1, opcion: 'Escala', valorMin: 1, valorMax: 10 }]
-        }
-      ]
+    return {
+      ...p,
+      codPre: p.codPre || p.id,
+      enunciado: p.enunciado || p.pregunta || p.texto || p.textoPre || 'Pregunta sin texto',
+      codTipoPre: p.codTipoPre || p.tipoPregunta?.codTipoPre || this.obtenerCodigoTipo(tipoNombre),
+      obligatoria: p.obligatoria === true || p.obligatoria === 1 ? 1 : 0,
+      opciones: p.opciones ?? []
     };
-    this.encuesta.set(mock);
-    this.construirFormulario(mock);
   }
+
+  private normalizarOpcion(o: any): any {
+    return {
+      ...o,
+      codOpc: o.codOpc || o.codOpcResp,
+      codOpcResp: o.codOpcResp || o.codOpc,
+      opcion: o.opcion || o.texto || o.nombre || 'Opción',
+      orden: o.orden ?? 1,
+      valor: o.valor
+    };
+  }
+
+  private obtenerCodigoTipo(tipo: string | null | undefined): number {
+    if (!tipo) return TipoPregunta.ABIERTA;
+
+    const tipoNormalizado = tipo.trim().toUpperCase();
+
+    switch (tipoNormalizado) {
+      case 'ABIERTA':
+        return TipoPregunta.ABIERTA;
+
+      case 'DICOTOMICA':
+        return TipoPregunta.DICOTOMICA;
+
+      case 'POLITOMICA':
+        return TipoPregunta.POLITOMICA;
+
+      case 'ELECCION_MULTIPLE':
+        return TipoPregunta.ELECCION_MULTIPLE;
+
+      case 'RANKING':
+        return TipoPregunta.RANKING;
+
+      case 'ESCALA_LIKERT':
+        return TipoPregunta.ESCALA_LIKERT;
+
+      case 'ESCALA_NUMERICA':
+        return TipoPregunta.ESCALA_NUMERICA;
+
+      case 'ESCALA_NOMINAL':
+        return TipoPregunta.ESCALA_NOMINAL;
+
+      case 'MIXTA':
+        return TipoPregunta.MIXTA;
+
+      default:
+        return TipoPregunta.ABIERTA;
+    }
+  }
+
+
 
   construirFormulario(encuesta: any): void {
     const group: any = {};
-    encuesta.preguntas.forEach((p: any) => {
-      const validators = p.obligatoria === 1 ? [Validators.required] : [];
-      
-      if (p.codTipoPre === TipoPregunta.ELECCION_MULTIPLE) {
+    const preguntas = encuesta?.preguntas ?? [];
+
+    preguntas.forEach((p: any) => {
+      const validators = Number(p.obligatoria) === 1 ? [Validators.required] : [];
+      const codPre = String(p.codPre);
+      const tipo = Number(p.codTipoPre);
+
+      if (tipo === TipoPregunta.ELECCION_MULTIPLE || tipo === TipoPregunta.RANKING) {
         const subGroup: any = {};
-        p.opciones.forEach((o: any) => {
+
+        (p.opciones ?? []).forEach((o: any) => {
           subGroup[o.opcion] = new FormControl(false);
         });
-        group[p.codPre.toString()] = this.fb.group(subGroup);
+
+        group[codPre] = this.fb.group(subGroup);
       } else {
-        group[p.codPre.toString()] = new FormControl('', validators);
+        group[codPre] = new FormControl('', validators);
       }
     });
+
     this.formGroup.set(this.fb.group(group));
   }
 
@@ -193,55 +266,94 @@ export class ResponderEncuestaComponent implements OnInit {
       return;
     }
 
-    const respuestas: RespuestaPreguntaRequest[] = [];
     const enc = this.encuesta();
+    const codUsu = Number(localStorage.getItem('userId'));
+    const codEnc = Number(enc?.codEnc || enc?.id || this.route.snapshot.paramMap.get('id'));
+
+    if (!codUsu) {
+      console.error('No existe userId en localStorage. Inicia sesión nuevamente.');
+      return;
+    }
+
+    if (!codEnc) {
+      console.error('No se encontró el código de encuesta:', enc);
+      return;
+    }
+
+    const respuestas: any[] = [];
 
     enc.preguntas.forEach((p: any) => {
       const val = fg.get(p.codPre.toString())?.value;
+      const tipo = Number(p.codTipoPre);
 
-      if (p.codTipoPre === TipoPregunta.ELECCION_MULTIPLE) {
-        const seleccionadasIds: number[] = [];
-        Object.keys(val).forEach(k => {
+      if (tipo === TipoPregunta.ELECCION_MULTIPLE || tipo === TipoPregunta.RANKING) {
+        Object.keys(val || {}).forEach((k, index) => {
           if (val[k]) {
             const opcObj = p.opciones.find((o: any) => o.opcion === k);
-            if (opcObj && opcObj.codOpc) {
-              seleccionadasIds.push(opcObj.codOpc);
+            if (opcObj) {
+              respuestas.push({
+                codPre: p.codPre,
+                codOpcResp: Number(opcObj.codOpcResp || opcObj.codOpc),
+                posicionRank: tipo === TipoPregunta.RANKING ? index + 1 : null
+              });
             }
           }
         });
-        respuestas.push({
-          codPre: p.codPre,
-          opcionesSeleccionadasIds: seleccionadasIds
-        });
-      } else if (p.codTipoPre === TipoPregunta.ESCALA_LIKERT || p.codTipoPre === TipoPregunta.ESCALA_NUMERICA) {
-        respuestas.push({
-          codPre: p.codPre,
-          valorNumerico: Number(val)
-        });
-      } else {
-        respuestas.push({
-          codPre: p.codPre,
-          textoRespuesta: val ? val.toString() : ''
-        });
+        return;
       }
+
+      if (
+        tipo === TipoPregunta.DICOTOMICA ||
+        tipo === TipoPregunta.POLITOMICA ||
+        tipo === TipoPregunta.ESCALA_NOMINAL
+      ) {
+        const opcObj = p.opciones.find((o: any) => o.opcion === val || Number(o.codOpcResp || o.codOpc) === Number(val));
+        respuestas.push({
+          codPre: p.codPre,
+          codOpcResp: opcObj ? Number(opcObj.codOpcResp || opcObj.codOpc) : null
+        });
+        return;
+      }
+
+      if (tipo === TipoPregunta.ESCALA_LIKERT) {
+        const opcObj = p.opciones.find((o: any) => Number(o.valor || o.codOpcResp || o.codOpc) === Number(val));
+        respuestas.push({
+          codPre: p.codPre,
+          codOpcResp: opcObj ? Number(opcObj.codOpcResp || opcObj.codOpc) : null,
+          valorResp: Number(val)
+        });
+        return;
+      }
+
+      if (tipo === TipoPregunta.ESCALA_NUMERICA) {
+        respuestas.push({
+          codPre: p.codPre,
+          valorResp: Number(val)
+        });
+        return;
+      }
+
+      respuestas.push({
+        codPre: p.codPre,
+        textoResp: val ? val.toString() : ''
+      });
     });
 
     const payload: ResponderEncuestaRequest = {
-      codEnc: enc.id,
-      respuestas: respuestas
+      codUsu,
+      codEnc,
+      respuestas
     };
 
-    console.log('Enviando respuestas:', payload);
+    console.log('Enviando respuestas al backend:', payload);
 
-    this.encuestaService.enviarRespuestas(payload).subscribe({
+    this.respuestaEncuestaService.responderEncuesta(payload).subscribe({
       next: () => {
         this.guardarEnLocalStorage(enc, respuestas);
         this.success.set(true);
       },
-      error: () => {
-        console.log('Simulando envío exitoso para fines de demostración.');
-        this.guardarEnLocalStorage(enc, respuestas);
-        this.success.set(true);
+      error: (error) => {
+        console.error('Error real al enviar respuestas:', error);
       }
     });
   }
@@ -250,9 +362,9 @@ export class ResponderEncuestaComponent implements OnInit {
     try {
       const savedStr = localStorage.getItem('solve_respuestas_usuario');
       const list = savedStr ? JSON.parse(savedStr) : [];
-      
+
       const nuevoRegistro = {
-        codEnc: encuesta.id,
+        codEnc: encuesta.codEnc || encuesta.id,
         titulo: encuesta.titulo,
         descripcion: encuesta.descripcion,
         fechaEnvio: new Date().toISOString(),
@@ -267,14 +379,14 @@ export class ResponderEncuestaComponent implements OnInit {
             opcionesSeleccionadasIds: r.opcionesSeleccionadasIds,
             opcionesTexto: r.opcionesSeleccionadasIds && preguntaObj && preguntaObj.opciones
               ? preguntaObj.opciones
-                  .filter((o: any) => r.opcionesSeleccionadasIds.includes(o.codOpc || o.codOpcResp))
-                  .map((o: any) => o.opcion)
+                .filter((o: any) => r.opcionesSeleccionadasIds.includes(o.codOpc || o.codOpcResp))
+                .map((o: any) => o.opcion)
               : []
           };
         })
       };
 
-      const filterList = list.filter((item: any) => item.codEnc !== encuesta.id);
+      const filterList = list.filter((item: any) => item.codEnc !== (encuesta.codEnc || encuesta.id));
       filterList.unshift(nuevoRegistro);
       localStorage.setItem('solve_respuestas_usuario', JSON.stringify(filterList));
     } catch (e) {

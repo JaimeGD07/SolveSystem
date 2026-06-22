@@ -18,7 +18,7 @@
           <p class="text-solve-text-muted dark:text-gray-400 mt-1">Crea una encuesta personalizada con varios tipos de preguntas</p>
         </div>
 
-        <form [formGroup]="encuestaForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <form [formGroup]="encuestaForm" (ngSubmit)="guardarEncuesta()" class="space-y-6">
 
           <!-- CONFIGURACIÓN BÁSICA -->
           <div class="bg-white dark:bg-gray-900 border border-solve-primary dark:border-gray-800 rounded-xl p-6 shadow-sm">
