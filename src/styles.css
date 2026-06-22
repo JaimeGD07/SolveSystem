@@ -22,6 +22,9 @@
   --color-solve-blue-dark: #0161CE;  /* Azul intermedio */
   --color-solve-text-muted: #667FB3; /* Azul grisáceo para textos secundarios */
   --color-solve-text-light: #9AA9C9; /* Nuevo gris/azul claro para textos */
+  /* Fondos especiales para Admin (Botones y Alertas) */
+  --color-solve-danger-pale: rgba(255, 192, 192, 0.81);
+  --color-solve-blue-soft: rgba(129, 157, 230, 0.62);
 
   /* Grises */
   --color-solve-pale-strong: rgba(192, 253, 255, 0.81); /* Nuevo Cyan 81% */

@@ -1,0 +1,81 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <div class="max-w-4xl mx-auto">
+
+        <div class="mb-6">
+          <a routerLink="/gestion" class="inline-flex items-center gap-2 text-solve-text-muted hover:text-solve-primary font-bold text-sm mb-4 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            Volver a Gestión de Usuarios
+          </a>
+          <h1 class="text-3xl font-extrabold text-solve-darker flex items-center gap-2">
+            <span class="text-solve-text-muted">👥</span> Crear Nuevo Usuario
+          </h1>
+          <p class="text-solve-text-muted mt-1 text-base font-medium">Agrega un nuevo usuario al sistema</p>
+        </div>
+
+        <div class="bg-white border border-solve-gray rounded-2xl p-8 shadow-sm">
+          <h2 class="text-2xl font-bold text-solve-darker mb-1">Crear Usuario</h2>
+          <p class="text-solve-primary text-base font-medium mb-8">Completa el formulario para crear un nuevo usuario</p>
+
+          <form [formGroup]="usuarioForm" (ngSubmit)="onSubmit()" class="space-y-8">
+
+            <div>
+              <label class="block text-xl font-bold text-solve-darker mb-2">Correo Electronico</label>
+              <input type="email" formControlName="email" placeholder="correo@dominio.com"
+                     class="w-full text-solve-primary placeholder-solve-light outline-none border-b border-solve-pale-strong focus:border-solve-primary transition-colors py-2 bg-transparent text-lg font-medium">
+              @if (usuarioForm.get('email')?.touched && usuarioForm.get('email')?.invalid) {
+                <span class="text-red-500 text-xs font-bold mt-1 block">El correo es obligatorio y debe tener un formato válido.</span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xl font-bold text-solve-darker mb-2">Nombre Completo</label>
+              <input type="text" formControlName="nombreCompleto" placeholder="Juan perez"
+                     class="w-full text-solve-primary placeholder-solve-light outline-none border-b border-solve-pale-strong focus:border-solve-primary transition-colors py-2 bg-transparent text-lg font-medium">
+            </div>
+
+            <div>
+              <label class="block text-xl font-bold text-solve-darker mb-2">Contraseña</label>
+              <input type="password" formControlName="password" placeholder="contraseña segura"
+                     class="w-full text-solve-primary placeholder-solve-light outline-none border-b border-solve-pale-strong focus:border-solve-primary transition-colors py-2 bg-transparent text-lg font-medium">
+              <p class="text-solve-primary opacity-80 text-sm mt-2 font-medium">Requisitos: mínimo 8 caracteres, una mayúscula y un carácter especial</p>
+              @if (usuarioForm.get('password')?.touched && usuarioForm.get('password')?.invalid) {
+                <span class="text-red-500 text-xs font-bold mt-1 block">La contraseña no cumple con los requisitos de seguridad.</span>
+              }
+            </div>
+
+            <div>
+              <label class="block text-xl font-bold text-solve-darker mb-2">Rol</label>
+              <div class="relative w-full md:w-1/2">
+                <select formControlName="rol" class="w-full text-solve-primary font-medium text-lg outline-none bg-transparent cursor-pointer border-b border-solve-pale-strong focus:border-solve-primary py-2 appearance-none">
+                  <option value="Administrador">Administrador</option>
+                  <option value="Encuestador">Encuestador</option>
+                  <option value="Encuestado">Encuestado</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-solve-primary">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-6">
+              <button type="submit"
+                      [disabled]="usuarioForm.invalid"
+                      class="w-full py-4 bg-solve-blue-soft hover:bg-solve-text-muted text-white font-bold text-xl rounded-full transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                Crear Usuario
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>

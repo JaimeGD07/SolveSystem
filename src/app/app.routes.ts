@@ -37,13 +37,26 @@ export const routes: Routes = [
   },
 
   // Rutas pendientes del Sidebar/Dashboard mapeadas al PlaceholderPageComponent
+  // {
+  //   path: 'gestion',
+  //   canActivate: [authGuard],
+  //   loadComponent: () =>
+  //     import('./features/placeholder-page/placeholder-page.component')
+  //       .then((m) => m.PlaceholderPageComponent),
+  //   data: { title: 'Gestión de Usuarios' }
+  // },
+  // RUTA DE GESTIÓN DE USUARIOS
   {
     path: 'gestion',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/placeholder-page/placeholder-page.component')
-        .then((m) => m.PlaceholderPageComponent),
-    data: { title: 'Gestión de Usuarios' }
+    loadComponent: () => import('./features/admin/pages/gestion-usuarios/gestion-usuarios.component').then(m => m.GestionUsuariosComponent)
+  },
+  {
+    path: 'gestion/crear',
+    loadComponent: () => import('./features/admin/pages/crear-usuario/crear-usuario.component').then(m => m.CrearUsuarioComponent)
+  },
+  {
+    path: 'config',
+    loadComponent: () => import('./features/admin/pages/configuracion/configuracion.component').then(m => m.ConfiguracionComponent)
   },
   {
     path: 'config',
