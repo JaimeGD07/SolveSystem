@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
@@ -6,6 +6,7 @@ import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { TipoPregunta } from '../../../../core/models/encuesta.model';
+import { RespuestaEncuestaService } from '../../../../core/services/responder-encuesta.service';
 
 interface Participacion {
   id: string;
@@ -208,6 +209,7 @@ interface Participacion {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RespuestasRecibidasComponent implements OnInit {
+  private respuestaEncuestaService = inject(RespuestaEncuestaService);
   readonly TipoPregunta = TipoPregunta;
 
   // Signal del listado completo
@@ -269,38 +271,27 @@ export class RespuestasRecibidasComponent implements OnInit {
   }
 
   cargarRespuestas(): void {
-    try {
-      const emailPorDefecto = localStorage.getItem('userEmail') || 'encuestado@gmail.com';
-      const savedStr = localStorage.getItem('solve_respuestas_usuario');
-      let localList: Participacion[] = [];
+    this.respuestaEncuestaService.listar().subscribe({
+      next: (items) => {
+        const list: Participacion[] = (items || []).map((item: any) => ({
+          id: String(item.codRespEnc || item.id),
+          email: item.usuario?.email || 'Sin correo',
+          codEnc: Number(item.codEnc || item.encuesta?.codEnc),
+          tituloEncuesta: item.encuesta?.titulo || 'Encuesta respondida',
+          fechaEnvio: item.fechFin || item.fechInicio || new Date().toISOString(),
+          respuestas: []
+        }));
 
-      if (savedStr) {
-        const parsed = JSON.parse(savedStr);
-        if (parsed.length > 0) {
-          localList = parsed.map((item: any, idx: number) => ({
-            id: `usr-${100 + idx}`,
-            email: emailPorDefecto,
-            codEnc: item.codEnc,
-            tituloEncuesta: item.titulo,
-            fechaEnvio: item.fechaEnvio || new Date().toISOString(),
-            respuestas: item.respuestas
-          }));
+        this.participaciones.set(list);
+        if (list.length > 0) {
+          this.seleccionada.set(list[0]);
         }
+      },
+      error: (error) => {
+        console.error('Error al cargar respuestas recibidas desde backend:', error);
+        this.participaciones.set([]);
       }
-
-      this.participaciones.set([...localList, ...this.mockParticipaciones]);
-      
-      // Auto-seleccionar la primera al cargar si existe
-      const total = this.participaciones();
-      if (total.length > 0) {
-        this.seleccionada.set(total[0]);
-      }
-    } catch {
-      this.participaciones.set(this.mockParticipaciones);
-      if (this.mockParticipaciones.length > 0) {
-        this.seleccionada.set(this.mockParticipaciones[0]);
-      }
-    }
+    });
   }
 
   // Lista computed filtrada

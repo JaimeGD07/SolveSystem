@@ -86,16 +86,16 @@ import { Encuesta } from '../../../../core/models/encuesta.model';
               } @else {
                 <!-- Grid of surveys -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  @for (enc of filteredEncuestas(); track enc.id) {
+                  @for (enc of filteredEncuestas(); track enc.codEnc || enc.id) {
                     <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md hover:border-solve-primary dark:hover:border-solve-primary transition-all flex flex-col justify-between h-full">
                       <div>
                         <!-- Badge y Fecha -->
                         <div class="flex justify-between items-center mb-4">
                           <span class="text-xs font-bold text-solve-primary dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 rounded-lg">
-                            📝 {{ enc.numeroPreguntas }} preguntas
+                            📝 {{ enc.numPreguntas || enc.numeroPreguntas || enc.num_preguntas || 0 }} preguntas
                           </span>
                           <span class="text-[10px] font-bold text-solve-text-light dark:text-gray-400">
-                            📅 {{ formatearFecha(enc.fechaCreacion) }}
+                            📅 {{ formatearFecha(enc.fechCrea || enc.fechaCreacion || enc.fech_crea) }}
                           </span>
                         </div>
 
@@ -112,17 +112,17 @@ import { Encuesta } from '../../../../core/models/encuesta.model';
                       <div class="pt-4 border-t border-gray-100 dark:border-gray-800 mt-auto flex flex-col gap-2">
                         @if (userRole() === 'ADMIN' || userRole() === 'ENCUESTADOR') {
                           <div class="flex gap-2">
-                            <a [routerLink]="['/encuestas', enc.id, 'resultados']" 
+                            <a [routerLink]="['/encuestas', enc.codEnc || enc.id, 'resultados']" 
                                class="flex-1 text-center py-2 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-xl transition-colors text-xs shadow-sm">
                               📊 Analíticas
                             </a>
-                            <a [routerLink]="['/encuestas', enc.id]" 
+                            <a [routerLink]="['/encuestas', enc.codEnc || enc.id]" 
                                class="flex-1 text-center py-2 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold rounded-xl transition-colors text-xs">
                               🔍 Detalles
                             </a>
                           </div>
                         } @else {
-                          <a [routerLink]="['/encuestas', enc.id, 'responder']" 
+                          <a [routerLink]="['/encuestas', enc.codEnc || enc.id, 'responder']" 
                              class="w-full text-center py-2.5 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-xl transition-colors text-xs shadow-sm flex items-center justify-center gap-2">
                             ✏️ Responder Encuesta
                           </a>
@@ -157,6 +157,7 @@ export class ListadoEncuestasComponent implements OnInit {
   private readonly mockEncuestas: Encuesta[] = [
     {
       id: 101,
+      codEnc: 101,
       titulo: 'Encuesta de Satisfacción General (Solve)',
       descripcion: 'Te invitamos a responder esta encuesta para validar los flujos reactivos de SolveSystem y evaluar el rendimiento general.',
       numeroPreguntas: 6,
@@ -165,6 +166,7 @@ export class ListadoEncuestasComponent implements OnInit {
     },
     {
       id: 102,
+      codEnc: 102,
       titulo: 'Evaluación del Módulo de Autenticación',
       descripcion: 'Encuesta corta para evaluar la usabilidad del sistema de login simulado y la asignación de roles por correo electrónico.',
       numeroPreguntas: 4,
@@ -173,6 +175,7 @@ export class ListadoEncuestasComponent implements OnInit {
     },
     {
       id: 103,
+      codEnc: 103,
       titulo: 'Sondeo sobre Tailwind CSS v4 vs v3',
       descripcion: 'Comparación técnica de rendimiento, uso de variables de entorno y nuevas directivas en la hoja de estilos global.',
       numeroPreguntas: 5,

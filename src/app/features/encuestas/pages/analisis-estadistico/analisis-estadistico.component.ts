@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, signal, computed, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
@@ -7,6 +7,8 @@ import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { TipoPregunta } from '../../../../core/models/encuesta.model';
+import { EncuestaService } from '../../../../core/services/encuesta.service';
+import { Pregunta } from '../../../../core/models/encuesta.model';
 
 Chart.register(...registerables);
 
@@ -166,6 +168,7 @@ interface SurveyOption {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
+  private encuestaService = inject(EncuestaService);
   readonly TipoPregunta = TipoPregunta;
 
   // Signal del estado
@@ -206,33 +209,24 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
   }
 
   cargarEncuestas(): void {
-    const list: SurveyOption[] = [
-      { id: 101, titulo: 'Encuesta de Satisfacción General (Solve)', descripcion: 'Te invitamos a responder esta encuesta para validar los flujos reactivos de SolveSystem.' },
-      { id: 102, titulo: 'Evaluación del Módulo de Autenticación', descripcion: 'Evaluación rápida de la redirección por roles.' },
-      { id: 103, titulo: 'Sondeo sobre Tailwind CSS v4 vs v3', descripcion: 'Comparación técnica de rendimiento y variables de entorno.' }
-    ];
+    this.encuestaService.listar().subscribe({
+      next: (encuestas) => {
+        const list = (encuestas || []).map((enc: any) => ({
+          id: Number(enc.codEnc || enc.id),
+          titulo: enc.titulo,
+          descripcion: enc.descripcion || ''
+        }));
 
-    // Verificar si el usuario ha guardado respuestas de encuestas creadas en local
-    try {
-      const savedStr = localStorage.getItem('solve_respuestas_usuario');
-      if (savedStr) {
-        const parsed = JSON.parse(savedStr);
-        parsed.forEach((item: any) => {
-          if (!list.some(e => e.id === item.codEnc)) {
-            list.push({
-              id: item.codEnc,
-              titulo: item.titulo,
-              descripcion: item.descripcion || ''
-            });
-          }
-        });
+        this.encuestas.set(list);
+        if (list.length > 0) {
+          this.seleccionarEncuesta(list[0].id);
+        }
+      },
+      error: (error) => {
+        console.error('Error al cargar encuestas para análisis:', error);
+        this.encuestas.set([]);
       }
-    } catch {}
-
-    this.encuestas.set(list);
-    if (list.length > 0) {
-      this.seleccionarEncuesta(list[0].id);
-    }
+    });
   }
 
   seleccionarEncuesta(id: number): void {
@@ -246,164 +240,32 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
   }
 
   cargarMetricasEncuesta(id: number): void {
-    // Cantidad simulada de participantes
-    let totalP = 15;
-    let compVal = 100;
-    let timeVal = 2.4;
+    this.encuestaService.obtenerAnaliticas(id).subscribe({
+      next: (analitica) => {
+        this.totalParticipantes.set(analitica.totalParticipantes || 0);
+        this.completitud.set(100);
+        this.tiempoPromedio.set(2.4);
 
-    // Si coincide con las respuestas locales del usuario
-    let localAnswers: any[] = [];
-    try {
-      const savedStr = localStorage.getItem('solve_respuestas_usuario');
-      if (savedStr) {
-        const parsed = JSON.parse(savedStr);
-        localAnswers = parsed.filter((item: any) => item.codEnc === id);
+        const preguntas = (analitica.metricasPreguntas || []).map((q: any) => ({
+          ...q,
+          datos: q.frecuencias
+            ? {
+              labels: q.frecuencias.map((f: any) => f.opcion),
+              valores: q.frecuencias.map((f: any) => f.frecuencia)
+            }
+            : undefined
+        }));
+
+        this.preguntasReporte.set(preguntas);
+      },
+      error: (error) => {
+        console.error('Error al cargar métricas desde el backend:', error);
+        this.preguntasReporte.set([]);
+        this.totalParticipantes.set(0);
+        this.completitud.set(0);
+        this.tiempoPromedio.set(0);
       }
-    } catch {}
-
-    // Combinar participaciones totales
-    totalP += localAnswers.length;
-
-    this.totalParticipantes.set(totalP);
-    this.completitud.set(compVal);
-    this.tiempoPromedio.set(Number((timeVal + (localAnswers.length * 0.1)).toFixed(1)));
-
-    // Cargar estructura de preguntas de la encuesta
-    let preguntasRaw: any[] = [];
-
-    if (id === 101) {
-      preguntasRaw = [
-        {
-          codPre: 1,
-          enunciado: '¿Qué opinión tienes sobre el desempeño del sistema Solve?',
-          codTipoPre: TipoPregunta.ABIERTA,
-          respuestasAbiertas: [
-            'El sistema carga de forma inmediata gracias al uso de signals y componentes standalone.',
-            'Excelente rendimiento de recarga local.',
-            'Me fascina la fluidez visual de la barra de progreso.',
-            'Es un flujo reactivo excelente.'
-          ]
-        },
-        {
-          codPre: 2,
-          enunciado: '¿Consideras que la reactividad con Angular Signals mejora la velocidad percibida?',
-          codTipoPre: TipoPregunta.DICOTOMICA,
-          datos: { labels: ['Verdadero', 'Falso'], valores: [totalP - 1, 1] }
-        },
-        {
-          codPre: 3,
-          enunciado: '¿Cuál de los siguientes módulos te parece el más importante para la demo?',
-          codTipoPre: TipoPregunta.POLITOMICA,
-          datos: { labels: ['Módulo de Creación Dinámica', 'Historial Estadístico', 'Bandeja de Listados'], valores: [Math.floor(totalP * 0.5), Math.floor(totalP * 0.3), totalP - Math.floor(totalP * 0.5) - Math.floor(totalP * 0.3)] }
-        },
-        {
-          codPre: 4,
-          enunciado: 'Selecciona todas las herramientas aplicadas en el frontend (Múltiple):',
-          codTipoPre: TipoPregunta.ELECCION_MULTIPLE,
-          datos: { labels: ['Angular 21 (Standalone)', 'Angular Signals', 'Tailwind CSS v4', 'Chart.js'], valores: [totalP, totalP - 2, totalP - 3, totalP - 5] }
-        },
-        {
-          codPre: 5,
-          enunciado: 'Califica la estética visual general (Escala Likert 1-5):',
-          codTipoPre: TipoPregunta.ESCALA_LIKERT,
-          promedio: 4.6,
-          datos: { labels: ['1 Voto', '2 Votos', '3 Votos', '4 Votos', '5 Votos'], valores: [0, 0, 1, 4, totalP - 5] }
-        },
-        {
-          codPre: 6,
-          enunciado: 'Califica la compatibilidad percibida (Escala Numérica 1-10):',
-          codTipoPre: TipoPregunta.ESCALA_NUMERICA,
-          promedio: 9.2,
-          datos: { labels: ['1-4', '5-6', '7', '8', '9', '10'], valores: [0, 0, 1, 2, 5, totalP - 8] }
-        }
-      ];
-    } else if (id === 102) {
-      preguntasRaw = [
-        {
-          codPre: 1,
-          enunciado: '¿Qué tan seguro consideras el login simulado?',
-          codTipoPre: TipoPregunta.ESCALA_LIKERT,
-          promedio: 4.2,
-          datos: { labels: ['1', '2', '3', '4', '5'], valores: [0, 1, 2, 7, totalP - 10] }
-        },
-        {
-          codPre: 2,
-          enunciado: '¿La velocidad del delay de red simulado es adecuada?',
-          codTipoPre: TipoPregunta.DICOTOMICA,
-          datos: { labels: ['Verdadero', 'Falso'], valores: [totalP - 2, 2] }
-        },
-        {
-          codPre: 3,
-          enunciado: 'Describe tu experiencia de redirección por roles:',
-          codTipoPre: TipoPregunta.ABIERTA,
-          respuestasAbiertas: [
-            'Es inmediata. Detecta el email y asigna el rol correcto en localStorage.',
-            'Redirecciona perfecto a /dashboard.',
-            'Muy cómodo el cierre de sesión.'
-          ]
-        }
-      ];
-    } else if (id === 103) {
-      preguntasRaw = [
-        {
-          codPre: 1,
-          enunciado: '¿Prefieres Tailwind v4 sobre v3?',
-          codTipoPre: TipoPregunta.DICOTOMICA,
-          datos: { labels: ['Sí', 'No'], valores: [totalP - 1, 1] }
-        },
-        {
-          codPre: 2,
-          enunciado: '¿Has probado las variables CSS dinámicas?',
-          codTipoPre: TipoPregunta.DICOTOMICA,
-          datos: { labels: ['Verdadero', 'Falso'], valores: [totalP - 3, 3] }
-        }
-      ];
-    } else {
-      // Para cualquier encuesta personalizada creada por el usuario, renderizar métricas dinámicas
-      preguntasRaw = [];
-      if (localAnswers.length > 0) {
-        // Mapear de las respuestas locales
-        const representacion = localAnswers[0];
-        representacion.respuestas.forEach((r: any) => {
-          if (r.codTipoPre === TipoPregunta.ABIERTA) {
-            preguntasRaw.push({
-              codPre: r.codPre,
-              enunciado: r.enunciado,
-              codTipoPre: r.codTipoPre,
-              respuestasAbiertas: localAnswers.map(la => la.respuestas.find((lar: any) => lar.codPre === r.codPre)?.textoRespuesta).filter(Boolean)
-            });
-          } else if (r.codTipoPre === TipoPregunta.DICOTOMICA || r.codTipoPre === TipoPregunta.POLITOMICA) {
-            preguntasRaw.push({
-              codPre: r.codPre,
-              enunciado: r.enunciado,
-              codTipoPre: r.codTipoPre,
-              datos: { labels: [r.textoRespuesta || 'Opción A', 'Opción B'], valores: [localAnswers.length, 2] }
-            });
-          } else if (r.codTipoPre === TipoPregunta.ELECCION_MULTIPLE) {
-            const labels = r.opcionesTexto?.length ? r.opcionesTexto : ['Opción 1', 'Opción 2'];
-            preguntasRaw.push({
-              codPre: r.codPre,
-              enunciado: r.enunciado,
-              codTipoPre: r.codTipoPre,
-              datos: { labels: labels, valores: labels.map(() => localAnswers.length) }
-            });
-          } else {
-            // Escalas
-            const valNum = r.valorNumerico || 5;
-            preguntasRaw.push({
-              codPre: r.codPre,
-              enunciado: r.enunciado,
-              codTipoPre: r.codTipoPre,
-              promedio: valNum,
-              datos: { labels: ['1-3', '4-5', '6-7', '8-9', '10'], valores: [0, 0, 1, 0, localAnswers.length] }
-            });
-          }
-        });
-      }
-    }
-
-    // Actualizar signal de preguntas
-    this.preguntasReporte.set(preguntasRaw);
+    });
   }
 
   inicializarGraficos(preguntas: any[]): void {
@@ -417,7 +279,7 @@ export class AnalisisEstadisticoComponent implements OnInit, OnDestroy {
       const chartType = isDoughnut ? 'doughnut' : 'bar';
 
       // Configuración de colores
-      const bgColors = isDoughnut 
+      const bgColors = isDoughnut
         ? ['#0188FF', '#6366f1', '#ec4899', '#f59e0b', '#10b981']
         : '#0188FF';
 

@@ -67,7 +67,7 @@ export class CrearEncuestaComponent {
 
   onTipoPreChange(preguntaIndex: number): void {
     const preguntaGroup = this.preguntas.at(preguntaIndex) as FormGroup;
-    const tipo = +preguntaGroup.get('codTipoPre')?.value;
+    const tipo = Number(preguntaGroup.get('codTipoPre')?.value);
     const opciones = this.getOpciones(preguntaIndex);
 
     opciones.clear();
@@ -116,13 +116,14 @@ export class CrearEncuestaComponent {
   }
 
   onSubmit(): void {
+    this.guardarEncuesta();
     if (this.encuestaForm.invalid) {
       this.encuestaForm.markAllAsTouched();
       return;
     }
 
     const formVal = this.encuestaForm.value;
-    
+
     const payload: CrearEncuestaRequest = {
       titulo: formVal.titulo || '',
       descripcion: formVal.descripcion || ''
@@ -130,14 +131,82 @@ export class CrearEncuestaComponent {
 
     // Imprimir para depuración y llamar al servicio de creación
     console.log('Enviando encuesta al backend:', payload, formVal.preguntas);
-    
-    // Aquí implementaremos la orquestación completa para guardar la encuesta
-    // y sus preguntas a través del servicio
-    this.encuestaService.crearEncuestaCompleta(formVal).subscribe({
-      next: () => {
+
+
+  }
+  guardarEncuesta(): void {
+    console.log('Botón guardar presionado');
+
+    if (this.encuestaForm.invalid) {
+      this.encuestaForm.markAllAsTouched();
+      console.log('Formulario inválido');
+      return;
+    }
+
+    const data = this.encuestaForm.getRawValue();
+
+    const payload = {
+      titulo: data.titulo || '',
+      descripcion: data.descripcion || '',
+      preguntas: (data.preguntas || []).map((p: any) => ({
+        texto: p.enunciado,
+        tipo: this.obtenerTipoBackend(p.codTipoPre),
+        obligatoria: p.obligatoria === true,
+        opciones: (p.opciones || []).map((op: any, index: number) => ({
+          texto: op.opcion,
+          valor: op.valor ?? index + 1,
+          orden: op.orden ?? index + 1
+        }))
+      }))
+    };
+
+    console.log('Payload final:', JSON.stringify(payload, null, 2));
+
+    this.encuestaService.crearEncuestaCompleta(payload).subscribe({
+      next: (res) => {
+        console.log('Encuesta completa guardada:', res);
         this.router.navigate(['/encuestas']);
+      },
+      error: (err) => {
+        console.error('Error al crear encuesta en backend:', err);
+        console.error('Mensaje backend:', err?.error?.message);
       }
     });
+  }
+  private obtenerTipoBackend(tipo: any): string {
+    const tipoNumero = Number(tipo);
+
+    switch (tipoNumero) {
+      case TipoPregunta.ABIERTA:
+        return 'ABIERTA';
+
+      case TipoPregunta.DICOTOMICA:
+        return 'DICOTOMICA';
+
+      case TipoPregunta.POLITOMICA:
+        return 'POLITOMICA';
+
+      case TipoPregunta.ELECCION_MULTIPLE:
+        return 'ELECCION_MULTIPLE';
+
+      case TipoPregunta.RANKING:
+        return 'RANKING';
+
+      case TipoPregunta.ESCALA_LIKERT:
+        return 'ESCALA_LIKERT';
+
+      case TipoPregunta.ESCALA_NUMERICA:
+        return 'ESCALA_NUMERICA';
+
+      case TipoPregunta.ESCALA_NOMINAL:
+        return 'ESCALA_NOMINAL';
+
+      case TipoPregunta.MIXTA:
+        return 'MIXTA';
+
+      default:
+        return String(tipo).trim().toUpperCase();
+    }
   }
 }
 

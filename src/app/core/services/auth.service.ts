@@ -38,7 +38,6 @@ export class AuthService {
 
   guardarSesion(res: any): void {
     localStorage.setItem('token', res.token);
-    localStorage.setItem('tokenType', res.tipoToken ?? 'Bearer');
     localStorage.setItem('userId', String(res.codUsu));
     localStorage.setItem('userName', res.nombreCompleto);
     localStorage.setItem('userEmail', res.email);
@@ -58,12 +57,6 @@ export class AuthService {
   }
 
   cerrarSesion(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('tokenType');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('userStatus');
-    localStorage.removeItem('userRole');
+    localStorage.clear();
   }
 }

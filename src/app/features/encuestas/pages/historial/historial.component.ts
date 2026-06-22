@@ -6,6 +6,7 @@ import { Chart, registerables } from 'chart.js';
 import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
+import { RespuestaEncuestaService } from '../../../../core/services/responder-encuesta.service';
 
 Chart.register(...registerables);
 
@@ -124,6 +125,7 @@ Chart.register(...registerables);
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HistorialComponent implements OnInit, OnDestroy {
+  private respuestaEncuestaService = inject(RespuestaEncuestaService);
   participaciones = signal<any[]>([]);
   private chart: Chart | null = null;
 
@@ -174,22 +176,31 @@ export class HistorialComponent implements OnInit, OnDestroy {
   }
 
   cargarHistorial(): void {
-    try {
-      const savedStr = localStorage.getItem('solve_respuestas_usuario');
-      if (savedStr) {
-        const list = JSON.parse(savedStr);
-        if (list.length > 0) {
-          // Unir mocks con lo guardado en local para dar riqueza visual
-          const idsGuardados = list.map((item: any) => item.codEnc);
-          const mocksFiltrados = this.mockParticipaciones.filter(m => !idsGuardados.includes(m.codEnc));
-          this.participaciones.set([...list, ...mocksFiltrados]);
-          return;
-        }
-      }
-      this.participaciones.set(this.mockParticipaciones);
-    } catch {
-      this.participaciones.set(this.mockParticipaciones);
+    const codUsu = Number(localStorage.getItem('userId'));
+
+    if (!codUsu) {
+      this.participaciones.set([]);
+      return;
     }
+
+    this.respuestaEncuestaService.listarPorUsuario(codUsu).subscribe({
+      next: (items) => {
+        const list = (items || []).map((item: any) => ({
+          codEnc: Number(item.codEnc || item.encuesta?.codEnc),
+          titulo: item.encuesta?.titulo || 'Encuesta respondida',
+          descripcion: item.encuesta?.descripcion || '',
+          fechaEnvio: item.fechFin || item.fechInicio || item.fechaEnvio,
+          categoria: 'Encuestas',
+          respuestas: []
+        }));
+        this.participaciones.set(list);
+        this.inicializarGraficoConRetraso();
+      },
+      error: (error) => {
+        console.error('Error al cargar historial desde backend:', error);
+        this.participaciones.set([]);
+      }
+    });
   }
 
   inicializarGraficoConRetraso(): void {

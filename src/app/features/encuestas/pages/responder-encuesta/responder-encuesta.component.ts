@@ -7,6 +7,9 @@ import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { EncuestaService } from '../../../../core/services/encuesta.service';
+import { RespuestaEncuestaService } from '../../../../core/services/responder-encuesta.service';
+import { PreguntaService } from '../../../../core/services/pregunta.service';
+import { OpcionRespuestaService } from '../../../../core/services/opcion-respuesta.service';
 import { TipoPregunta, ResponderEncuestaRequest, RespuestaPreguntaRequest } from '../../../../core/models/encuesta.model';
 
 @Component({
@@ -20,6 +23,9 @@ export class ResponderEncuestaComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private encuestaService = inject(EncuestaService);
+  private respuestaEncuestaService = inject(RespuestaEncuestaService);
+  private preguntaService = inject(PreguntaService);
+  private opcionRespuestaService = inject(OpcionRespuestaService);
 
   readonly TipoPregunta = TipoPregunta;
 
@@ -56,13 +62,14 @@ export class ResponderEncuestaComponent implements OnInit {
   }
 
   cargarEncuesta(id: number): void {
-    this.encuestaService.obtenerEncuestaConDetalles(id).subscribe({
+    this.encuestaService.buscarPorId(id).subscribe({
       next: (response) => {
         const enc = response.data || response;
         this.encuesta.set(enc);
         this.construirFormulario(enc);
       },
-      error: () => {
+      error: (error) => {
+        console.error('Error al cargar encuesta:', error);
         this.cargarMockEncuesta(id);
       }
     });
@@ -193,55 +200,94 @@ export class ResponderEncuestaComponent implements OnInit {
       return;
     }
 
-    const respuestas: RespuestaPreguntaRequest[] = [];
     const enc = this.encuesta();
+    const codUsu = Number(localStorage.getItem('userId'));
+    const codEnc = Number(enc?.codEnc || enc?.id || this.route.snapshot.paramMap.get('id'));
+
+    if (!codUsu) {
+      console.error('No existe userId en localStorage. Inicia sesión nuevamente.');
+      return;
+    }
+
+    if (!codEnc) {
+      console.error('No se encontró el código de encuesta:', enc);
+      return;
+    }
+
+    const respuestas: any[] = [];
 
     enc.preguntas.forEach((p: any) => {
       const val = fg.get(p.codPre.toString())?.value;
+      const tipo = Number(p.codTipoPre);
 
-      if (p.codTipoPre === TipoPregunta.ELECCION_MULTIPLE) {
-        const seleccionadasIds: number[] = [];
-        Object.keys(val).forEach(k => {
+      if (tipo === TipoPregunta.ELECCION_MULTIPLE || tipo === TipoPregunta.RANKING) {
+        Object.keys(val || {}).forEach((k, index) => {
           if (val[k]) {
             const opcObj = p.opciones.find((o: any) => o.opcion === k);
-            if (opcObj && opcObj.codOpc) {
-              seleccionadasIds.push(opcObj.codOpc);
+            if (opcObj) {
+              respuestas.push({
+                codPre: p.codPre,
+                codOpcResp: Number(opcObj.codOpcResp || opcObj.codOpc),
+                posicionRank: tipo === TipoPregunta.RANKING ? index + 1 : null
+              });
             }
           }
         });
-        respuestas.push({
-          codPre: p.codPre,
-          opcionesSeleccionadasIds: seleccionadasIds
-        });
-      } else if (p.codTipoPre === TipoPregunta.ESCALA_LIKERT || p.codTipoPre === TipoPregunta.ESCALA_NUMERICA) {
-        respuestas.push({
-          codPre: p.codPre,
-          valorNumerico: Number(val)
-        });
-      } else {
-        respuestas.push({
-          codPre: p.codPre,
-          textoRespuesta: val ? val.toString() : ''
-        });
+        return;
       }
+
+      if (
+        tipo === TipoPregunta.DICOTOMICA ||
+        tipo === TipoPregunta.POLITOMICA ||
+        tipo === TipoPregunta.ESCALA_NOMINAL
+      ) {
+        const opcObj = p.opciones.find((o: any) => o.opcion === val || Number(o.codOpcResp || o.codOpc) === Number(val));
+        respuestas.push({
+          codPre: p.codPre,
+          codOpcResp: opcObj ? Number(opcObj.codOpcResp || opcObj.codOpc) : null
+        });
+        return;
+      }
+
+      if (tipo === TipoPregunta.ESCALA_LIKERT) {
+        const opcObj = p.opciones.find((o: any) => Number(o.valor || o.codOpcResp || o.codOpc) === Number(val));
+        respuestas.push({
+          codPre: p.codPre,
+          codOpcResp: opcObj ? Number(opcObj.codOpcResp || opcObj.codOpc) : null,
+          valorResp: Number(val)
+        });
+        return;
+      }
+
+      if (tipo === TipoPregunta.ESCALA_NUMERICA) {
+        respuestas.push({
+          codPre: p.codPre,
+          valorResp: Number(val)
+        });
+        return;
+      }
+
+      respuestas.push({
+        codPre: p.codPre,
+        textoResp: val ? val.toString() : ''
+      });
     });
 
     const payload: ResponderEncuestaRequest = {
-      codEnc: enc.id,
-      respuestas: respuestas
+      codUsu,
+      codEnc,
+      respuestas
     };
 
-    console.log('Enviando respuestas:', payload);
+    console.log('Enviando respuestas al backend:', payload);
 
-    this.encuestaService.enviarRespuestas(payload).subscribe({
+    this.respuestaEncuestaService.responderEncuesta(payload).subscribe({
       next: () => {
         this.guardarEnLocalStorage(enc, respuestas);
         this.success.set(true);
       },
-      error: () => {
-        console.log('Simulando envío exitoso para fines de demostración.');
-        this.guardarEnLocalStorage(enc, respuestas);
-        this.success.set(true);
+      error: (error) => {
+        console.error('Error real al enviar respuestas:', error);
       }
     });
   }
@@ -252,7 +298,7 @@ export class ResponderEncuestaComponent implements OnInit {
       const list = savedStr ? JSON.parse(savedStr) : [];
       
       const nuevoRegistro = {
-        codEnc: encuesta.id,
+        codEnc: encuesta.codEnc || encuesta.id,
         titulo: encuesta.titulo,
         descripcion: encuesta.descripcion,
         fechaEnvio: new Date().toISOString(),
@@ -274,7 +320,7 @@ export class ResponderEncuestaComponent implements OnInit {
         })
       };
 
-      const filterList = list.filter((item: any) => item.codEnc !== encuesta.id);
+      const filterList = list.filter((item: any) => item.codEnc !== (encuesta.codEnc || encuesta.id));
       filterList.unshift(nuevoRegistro);
       localStorage.setItem('solve_respuestas_usuario', JSON.stringify(filterList));
     } catch (e) {

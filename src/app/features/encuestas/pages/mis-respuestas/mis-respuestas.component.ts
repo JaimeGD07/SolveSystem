@@ -6,6 +6,7 @@ import { SidebarComponent } from '../../../../layout/sidebar/sidebar.component';
 import { HeaderComponent } from '../../../../layout/header/header.component';
 import { FooterComponent } from '../../../../layout/footer/footer.component';
 import { TipoPregunta } from '../../../../core/models/encuesta.model';
+import { RespuestaEncuestaService } from '../../../../core/services/responder-encuesta.service';
 
 @Component({
   selector: 'app-mis-respuestas',
@@ -142,6 +143,7 @@ import { TipoPregunta } from '../../../../core/models/encuesta.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MisRespuestasComponent implements OnInit {
+  private respuestaEncuestaService = inject(RespuestaEncuestaService);
   readonly TipoPregunta = TipoPregunta;
   misRespuestas = signal<any[]>([]);
   expandedSurveyId = signal<number | null>(null);
@@ -169,21 +171,29 @@ export class MisRespuestasComponent implements OnInit {
   }
 
   cargarRespuestas(): void {
-    try {
-      const savedStr = localStorage.getItem('solve_respuestas_usuario');
-      if (savedStr) {
-        const list = JSON.parse(savedStr);
-        if (list.length > 0) {
-          this.misRespuestas.set(list);
-          return;
-        }
-      }
-      
-      // Fallback a mocks
-      this.misRespuestas.set(this.mockRespuestas);
-    } catch {
-      this.misRespuestas.set(this.mockRespuestas);
+    const codUsu = Number(localStorage.getItem('userId'));
+
+    if (!codUsu) {
+      this.misRespuestas.set([]);
+      return;
     }
+
+    this.respuestaEncuestaService.listarPorUsuario(codUsu).subscribe({
+      next: (items) => {
+        const list = (items || []).map((item: any) => ({
+          codEnc: Number(item.codEnc || item.encuesta?.codEnc),
+          titulo: item.encuesta?.titulo || 'Encuesta respondida',
+          descripcion: item.encuesta?.descripcion || '',
+          fechaEnvio: item.fechFin || item.fechInicio || item.fechaEnvio,
+          respuestas: []
+        }));
+        this.misRespuestas.set(list);
+      },
+      error: (error) => {
+        console.error('Error al cargar mis respuestas desde backend:', error);
+        this.misRespuestas.set([]);
+      }
+    });
   }
 
   toggleSurvey(id: number): void {
