@@ -1,0 +1,229 @@
+<div class="flex h-screen bg-gray-50 overflow-hidden font-sans text-solve-darker">
+  <app-sidebar></app-sidebar>
+
+  <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+    <app-header></app-header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8 relative flex flex-col justify-between">
+      <div class="max-w-3xl mx-auto w-full flex-1 flex flex-col justify-between">
+
+        <!-- Pantalla de Éxito / Success Screen -->
+        @if (success()) {
+          <div class="bg-white border border-green-200 rounded-2xl p-8 shadow-md text-center max-w-lg mx-auto mt-12 animate-fade-in my-auto">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-black text-solve-primary mb-2">¡Encuesta Enviada!</h2>
+            <p class="text-solve-text-muted mb-8 text-sm">
+              Tus respuestas han sido procesadas correctamente en la base de datos de SolveSystem.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button (click)="resetearLlenado()" class="px-6 py-2.5 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-xl transition-colors text-sm shadow-sm">
+                🔄 Responder otra vez (Simular en vivo)
+              </button>
+              <a routerLink="/dashboard" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors text-sm">
+                Ir al Dashboard
+              </a>
+            </div>
+          </div>
+        } @else {
+          <!-- Formulario de Encuesta / Survey Form -->
+          @if (encuesta()) {
+            <div>
+              <div class="mb-6">
+                <h1 class="text-3xl font-extrabold text-solve-primary">{{ encuesta().titulo }}</h1>
+                <p class="text-solve-text-muted mt-2 text-sm">{{ encuesta().descripcion || 'Por favor, responde con honestidad.' }}</p>
+              </div>
+
+              <!-- Barra de Progreso Dinámica -->
+              <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm mb-6">
+                <div class="flex justify-between items-center mb-1 text-xs font-bold text-solve-primary">
+                  <span>Progreso de llenado</span>
+                  <span>{{ progreso() }}%</span>
+                </div>
+                <div class="w-full bg-gray-150 h-2.5 rounded-full overflow-hidden">
+                  <div class="bg-solve-primary h-2.5 transition-all duration-300" [style.width.%]="progreso()"></div>
+                </div>
+              </div>
+
+              <form [formGroup]="formGroup()" (ngSubmit)="onSubmit()" class="space-y-6">
+                <!-- Renderizado de Preguntas -->
+                @for (pregunta of encuesta().preguntas; track pregunta.codPre; let idx = $index) {
+                  <div class="bg-white border rounded-xl p-6 shadow-sm transition-all"
+                       [class.border-red-300]="submitted() && formGroup().get(pregunta.codPre.toString())?.invalid"
+                       [class.border-gray-200]="!submitted() || formGroup().get(pregunta.codPre.toString())?.valid">
+                    
+                    <div class="flex items-start gap-2 mb-4">
+                      <span class="text-sm font-black text-solve-primary bg-blue-50 px-2 py-1 rounded">
+                        P.{{ idx + 1 }}
+                      </span>
+                      <h3 class="text-base font-bold text-gray-900 leading-normal flex-1">
+                        {{ pregunta.enunciado }}
+                        @if (pregunta.obligatoria === 1) {
+                          <span class="text-red-500 font-bold" title="Campo obligatorio">*</span>
+                        }
+                      </h3>
+                    </div>
+
+                    <!-- Entrada de respuestas según el tipo de pregunta -->
+                    <div class="mt-2">
+                      @switch (pregunta.codTipoPre) {
+                        
+                        <!-- 1. ABIERTA -->
+                        @case (TipoPregunta.ABIERTA) {
+                          <textarea [formControlName]="pregunta.codPre.toString()"
+                                    placeholder="Escribe tu respuesta aquí..."
+                                    rows="3"
+                                    class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:border-solve-primary outline-none transition-colors resize-y bg-gray-50/30">
+                          </textarea>
+                        }
+
+                        <!-- 2. DICOTÓMICA (Falso/Verdadero, Sí/No) -->
+                        @case (TipoPregunta.DICOTOMICA) {
+                          <div class="flex flex-col sm:flex-row gap-3">
+                            @for (opc of pregunta.opciones; track opc.orden) {
+                              <label class="flex items-center gap-3 bg-white hover:bg-gray-50 border border-gray-200 p-3 rounded-xl cursor-pointer transition-colors shadow-sm flex-1">
+                                <input type="radio"
+                                       [formControlName]="pregunta.codPre.toString()"
+                                       [value]="opc.opcion"
+                                       class="w-5 h-5 text-solve-primary border-gray-300 focus:ring-solve-primary">
+                                <span class="text-sm font-semibold text-gray-800">{{ opc.opcion }}</span>
+                              </label>
+                            }
+                          </div>
+                        }
+
+                        <!-- 3. POLITÓMICA (Elección única / Radio) -->
+                        @case (TipoPregunta.POLITOMICA) {
+                          <div class="space-y-2">
+                            @for (opc of pregunta.opciones; track opc.orden) {
+                              <label class="flex items-center gap-3 bg-white hover:bg-gray-50 border border-gray-200 p-3.5 rounded-xl cursor-pointer transition-all shadow-sm">
+                                <input type="radio"
+                                       [formControlName]="pregunta.codPre.toString()"
+                                       [value]="opc.opcion"
+                                       class="w-5 h-5 text-solve-primary border-gray-300 focus:ring-solve-primary">
+                                <span class="text-sm font-medium text-gray-800">{{ opc.opcion }}</span>
+                              </label>
+                            }
+                          </div>
+                        }
+
+                        <!-- 4. ELECCIÓN MÚLTIPLE (Checkboxes) -->
+                        @case (TipoPregunta.ELECCION_MULTIPLE) {
+                          <div [formGroupName]="pregunta.codPre.toString()" class="space-y-2">
+                            @for (opc of pregunta.opciones; track opc.orden) {
+                              <label class="flex items-center gap-3 bg-white hover:bg-gray-50 border border-gray-200 p-3.5 rounded-xl cursor-pointer transition-all shadow-sm">
+                                <input type="checkbox"
+                                       [checked]="isOptionChecked(pregunta.codPre, opc.opcion)"
+                                       (change)="onCheckboxChange(pregunta.codPre, opc.opcion, $event)"
+                                       class="w-5 h-5 text-solve-primary rounded border-gray-300 focus:ring-solve-primary">
+                                <span class="text-sm font-medium text-gray-800">{{ opc.opcion }}</span>
+                              </label>
+                            }
+                          </div>
+                        }
+
+                        <!-- 5. RANKING -->
+                        @case (TipoPregunta.RANKING) {
+                          <div class="space-y-2">
+                            <p class="text-xs text-solve-text-muted mb-2">Asigna el orden numérico de preferencia para cada opción:</p>
+                            @for (opc of pregunta.opciones; track opc.orden) {
+                              <div class="flex items-center gap-4 bg-gray-50 border border-gray-200 p-3 rounded-xl">
+                                <span class="text-sm font-bold text-gray-700 flex-1">{{ opc.opcion }}</span>
+                                <input type="number"
+                                       min="1"
+                                       [max]="pregunta.opciones.length"
+                                       placeholder="Pos."
+                                       class="w-16 border border-gray-300 rounded-lg py-1 px-2 text-center text-sm font-bold focus:border-solve-primary outline-none">
+                              </div>
+                            }
+                          </div>
+                        }
+
+                        <!-- 6. ESCALA LIKERT (1-5) -->
+                        @case (TipoPregunta.ESCALA_LIKERT) {
+                          <div class="flex flex-col gap-3">
+                            <div class="flex justify-between items-center gap-2 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                              <span class="text-xs font-bold text-solve-text-muted max-w-[80px] text-left">Totalmente en desacuerdo</span>
+                              <div class="flex gap-2.5">
+                                @for (num of [1, 2, 3, 4, 5]; track num) {
+                                  <button type="button"
+                                          (click)="seleccionarEscala(pregunta.codPre, num)"
+                                          [class.bg-solve-primary]="obtenerEscalaActiva(pregunta.codPre) === num"
+                                          [class.text-white]="obtenerEscalaActiva(pregunta.codPre) === num"
+                                          [class.bg-white]="obtenerEscalaActiva(pregunta.codPre) !== num"
+                                          [class.border-gray-300]="obtenerEscalaActiva(pregunta.codPre) !== num"
+                                          [class.border-solve-primary]="obtenerEscalaActiva(pregunta.codPre) === num"
+                                          class="w-10 h-10 rounded-full border flex items-center justify-center text-sm font-bold transition-all shadow-sm hover:scale-105 active:scale-95">
+                                    {{ num }}
+                                  </button>
+                                }
+                              </div>
+                              <span class="text-xs font-bold text-solve-text-muted max-w-[80px] text-right">Totalmente de acuerdo</span>
+                            </div>
+                          </div>
+                        }
+
+                        <!-- 7. ESCALA NUMÉRICA (1-10) -->
+                        @case (TipoPregunta.ESCALA_NUMERICA) {
+                          <div class="flex flex-col gap-2 items-center bg-gray-50 p-4 rounded-xl border border-gray-200">
+                            <span class="text-xs font-bold text-solve-text-muted mb-2">Selecciona un puntaje del 1 al 10:</span>
+                            <div class="flex gap-1.5 flex-wrap justify-center">
+                              @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track num) {
+                                <button type="button"
+                                        (click)="seleccionarEscala(pregunta.codPre, num)"
+                                        [class.bg-solve-primary]="obtenerEscalaActiva(pregunta.codPre) === num"
+                                        [class.text-white]="obtenerEscalaActiva(pregunta.codPre) === num"
+                                        [class.bg-white]="obtenerEscalaActiva(pregunta.codPre) !== num"
+                                        [class.border-gray-300]="obtenerEscalaActiva(pregunta.codPre) !== num"
+                                        [class.border-solve-primary]="obtenerEscalaActiva(pregunta.codPre) === num"
+                                        class="w-10 h-10 rounded-full border flex items-center justify-center text-sm font-bold transition-all shadow-sm hover:scale-105 active:scale-95">
+                                  {{ num }}
+                                </button>
+                              }
+                            </div>
+                          </div>
+                        }
+                      }
+                    </div>
+
+                    <!-- Mensaje de error para preguntas obligatorias no respondidas -->
+                    @if (submitted() && formGroup().get(pregunta.codPre.toString())?.invalid) {
+                      <div class="text-red-500 font-bold text-xs mt-2 flex items-center gap-1.5">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        Esta pregunta es obligatoria.
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Acciones del Formulario Integradas -->
+                <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-250">
+                  <a routerLink="/encuestas" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition-colors text-sm">
+                    Cancelar
+                  </a>
+                  <button type="submit" class="px-6 py-2.5 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-lg transition-colors text-sm shadow-sm">
+                    Enviar Respuestas 🚀
+                  </button>
+                </div>
+              </form>
+            </div>
+          } @else {
+            <!-- Cargando encuesta / Spinner -->
+            <div class="text-center py-20 flex-1 flex flex-col justify-center">
+              <div class="w-12 h-12 border-4 border-solve-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p class="text-solve-text-muted font-bold text-sm">Cargando encuesta para resolución...</p>
+            </div>
+          }
+        }
+
+      </div>
+    </main>
+
+    <app-footer></app-footer>
+  </div>
+</div>

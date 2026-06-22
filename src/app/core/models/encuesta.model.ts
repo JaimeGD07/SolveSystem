@@ -1,43 +1,96 @@
 // ---------------------------------------------------------
-// DTOs DE LECTURA (GET)
+// ENUMS DE DOMINIO (Mapeo exacto de la tabla TIPO_PREGUNTA)
 // ---------------------------------------------------------
-
-// DTO inferido para listar encuestas en el Dashboard/Mis Encuestas
-export interface Encuesta {
-  id: number;
-  titulo: string;
-  estado: 'Activa' | 'Borrador' | 'Cerrada';
-  numeroRespuestas: number;
-  fechaCreacion: string;
-  numeroPreguntas: number;
-  activa: boolean; // Necesario para el computed() de Claude en el servicio
+export enum TipoPregunta {
+  ABIERTA = 1,
+  DICOTOMICA = 2,
+  POLITOMICA = 3,
+  ELECCION_MULTIPLE = 4,
+  RANKING = 5,
+  ESCALA_LIKERT = 6,
+  ESCALA_NUMERICA = 7
 }
 
 // ---------------------------------------------------------
-// DTOs DE ESCRITURA (POST / PUT) - Basados en el Backend
+// DTOs DE LECTURA (GET) - Para el Dashboard
 // ---------------------------------------------------------
+export interface Encuesta {
+  id: number;              // Mapea a COD_ENC
+  titulo: string;          // Mapea a TITULO
+  descripcion?: string;    // Mapea a DESCRIPCION
+  numeroPreguntas: number; // Mapea a NUM_PREGUNTAS
+  fechaCreacion: string;   // Mapea a FECH_CREA
+  numeroRespuestas?: number; // Campo calculado opcional (COUNT de respuestas)
+}
 
-// DTO para crear la encuesta principal
+// ---------------------------------------------------------
+// DTOs DE ESCRITURA (POST / PUT) - Creación
+// ---------------------------------------------------------
 export interface CrearEncuestaRequest {
   titulo: string;
   descripcion: string;
 }
 
-// DTO para crear cada pregunta
-export interface CrearPreguntaRequest {
-  codEnc?: number; // Se llenará tras crear la encuesta
-  codTipoPre: number;
-  codCat: number;
-  enunciado: string;
-  obligatoria: number; // 1 o 0
+export interface CrearEncuestaCompletaRequest extends CrearEncuestaRequest {
+  preguntas: CrearPreguntaRequest[];
 }
 
-// DTO para crear opciones de respuesta múltiple
+export interface CrearPreguntaRequest {
+  codEnc?: number; 
+  codTipoPre: TipoPregunta;
+  codCat?: number; // Opcional, ya que las abiertas no tienen catálogo
+  enunciado: string;
+  obligatoria: number; // 1 (Sí) o 0 (No)
+  opciones?: OpcionRespuestaRequest[];
+}
+
 export interface OpcionRespuestaRequest {
-  codPre?: number; // Se llenará tras crear la pregunta
+  codPre?: number; 
   opcion: string;
   valor?: number;
   valorMax?: number;
   valorMin?: number;
-  orden: number;
+  orden?: number;
+}
+
+// ---------------------------------------------------------
+// DTOs DE RESPUESTA (POST) - Llenado de Encuestas
+// ---------------------------------------------------------
+export interface RespuestaPreguntaRequest {
+  codPre: number;
+  textoRespuesta?: string;      
+  valorNumerico?: number;       
+  opcionesSeleccionadasIds?: number[]; // Arreglo de COD_OPC_RESP
+}
+
+export interface ResponderEncuestaRequest {
+  codEnc: number;
+  respuestas: RespuestaPreguntaRequest[];
+}
+
+// ---------------------------------------------------------
+// DTOs DE ANALÍTICA (GET) - Visualización
+// ---------------------------------------------------------
+export interface OpcionFrecuenciaDTO {
+  opcion: string;
+  frecuencia: number;
+  porcentaje: number;
+}
+
+export interface PreguntaMetricasDTO {
+  codPre: number;
+  enunciado: string;
+  codTipoPre: TipoPregunta;
+  totalRespuestas: number;
+  promedio?: number;                 
+  frecuencias?: OpcionFrecuenciaDTO[]; 
+  respuestasAbiertas?: string[];       
+}
+
+export interface AnaliticaEncuestaResponse {
+  codEnc: number;
+  titulo: string;
+  descripcion: string;
+  totalParticipantes: number;
+  metricasPreguntas: PreguntaMetricasDTO[];
 }

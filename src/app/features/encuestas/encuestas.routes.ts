@@ -19,4 +19,16 @@ export const ENCUESTAS_ROUTES: Routes = [
       import('./pages/detalle-encuesta/detalle-encuesta.component')
         .then((m) => m.DetalleEncuestaComponent),
   },
+  {
+    path: ':id/responder',
+    loadComponent: () =>
+      import('./pages/responder-encuesta/responder-encuesta.component')
+        .then((m) => m.ResponderEncuestaComponent),
+  },
+  {
+    path: ':id/resultados',
+    loadComponent: () =>
+      import('./pages/resultados-encuesta/resultados-encuesta.component')
+        .then((m) => m.ResultadosEncuestaComponent),
+  },
 ];

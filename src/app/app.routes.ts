@@ -36,6 +36,85 @@ export const routes: Routes = [
         .then((m) => m.ENCUESTAS_ROUTES),
   },
 
+  // Rutas pendientes del Sidebar/Dashboard mapeadas al PlaceholderPageComponent
+  {
+    path: 'gestion',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Gestión de Usuarios' }
+  },
+  {
+    path: 'config',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Configuración del Sistema' }
+  },
+  {
+    path: 'reportes',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Reportes Generales' }
+  },
+  {
+    path: 'auditoria',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Bitácora de Auditoría' }
+  },
+  {
+    path: 'respuestas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Buzón de Respuestas Recibidas' }
+  },
+  {
+    path: 'analisis',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Análisis Estadístico' }
+  },
+  {
+    path: 'encuestas-disponibles',
+    redirectTo: 'encuestas',
+    pathMatch: 'full'
+  },
+  {
+    path: 'mis-respuestas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Mis Respuestas Enviadas' }
+  },
+  {
+    path: 'historial',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Historial de Participación' }
+  },
+  {
+    path: 'preferencias',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/placeholder-page/placeholder-page.component')
+        .then((m) => m.PlaceholderPageComponent),
+    data: { title: 'Preferencias de Cuenta' }
+  },
+
   //**
   //  { path: '**', redirectTo: 'dashboard',}, */
 

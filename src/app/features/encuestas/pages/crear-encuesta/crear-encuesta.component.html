@@ -5,8 +5,8 @@
   <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
     <app-header></app-header>
 
-    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8 relative pb-28">
-      <div class="max-w-4xl mx-auto">
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8 relative flex flex-col justify-between">
+      <div class="max-w-4xl mx-auto w-full">
 
         <!-- Botón Retroceder y Título -->
         <div class="mb-6">
@@ -37,42 +37,6 @@
                        class="w-full text-sm text-solve-primary placeholder-blue-300 outline-none border-b border-gray-200 focus:border-solve-primary transition-colors py-1 bg-transparent">
               </div>
 
-              <!-- Toggles -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-bold text-solve-primary">Respuestas anonimas</p>
-                    <p class="text-xs text-solve-primary opacity-80">No requieren cuenta</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" formControlName="anonimas" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-solve-primary"></div>
-                  </label>
-                </div>
-
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-bold text-solve-primary">Barra de Progreso</p>
-                    <p class="text-xs text-solve-primary opacity-80">Indica avance</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" formControlName="barraProgreso" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-solve-primary"></div>
-                  </label>
-                </div>
-
-                <!-- EL SWITCH DE ALEATORIZAR SOLICITADO -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-bold text-solve-primary">Aleatorizar Preguntas</p>
-                    <p class="text-xs text-solve-primary opacity-80">Mostrar en orden aleatorio</p>
-                  </div>
-                  <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" formControlName="aleatorizar" class="sr-only peer">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-solve-primary"></div>
-                  </label>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -106,17 +70,17 @@
                                  class="w-full text-sm text-solve-primary placeholder-blue-300 outline-none border-b border-gray-200 focus:border-solve-primary transition-colors py-1">
                         </div>
 
-                        <!-- Tipos de Pregunta Basados en la Imagen -->
+                        <!-- Tipos de Pregunta Basados en Oracle -->
                         <div>
                           <label class="block text-sm font-bold text-solve-primary mb-2">Tipo de Pregunta / Question Type</label>
-                          <select formControlName="codTipoPre" class="w-full text-sm text-blue-600 font-medium outline-none border-b border-gray-200 focus:border-solve-primary py-2 cursor-pointer bg-blue-50/50">
+                          <select formControlName="codTipoPre" (change)="onTipoPreChange(pIdx)" class="w-full text-sm text-blue-600 font-medium outline-none border-b border-gray-200 focus:border-solve-primary py-2 cursor-pointer bg-blue-50/50">
                             <option [value]="1">Respuesta Abierta / Open Text</option>
-                            <option [value]="2">Opción Múltiple / Multiple Choice</option>
-                            <option [value]="3">Pregunta Cerrada / Closed</option>
-                            <option [value]="4">Escala Likert / Likert Scale</option>
-                            <option [value]="5">Escala Numérica / Numeric Scale</option>
-                            <option [value]="6">Clasificación / Ranking</option>
-                            <option [value]="7">Dicotómica / Yes/No</option>
+                            <option [value]="2">Dicotómica (Falso/Verdadero, Sí/No)</option>
+                            <option [value]="3">Politómica (Elección única / Radio)</option>
+                            <option [value]="4">Elección Múltiple (Casillas / Checkboxes)</option>
+                            <option [value]="5">Ranking / Clasificación</option>
+                            <option [value]="6">Escala Likert (1-5)</option>
+                            <option [value]="7">Escala Numérica (1-10)</option>
                           </select>
                         </div>
 
@@ -132,13 +96,28 @@
                             }
 
                             @case (2) {
-                              <!-- OPCIÓN MÚLTIPLE (Arreglo Dinámico de Opciones) -->
+                              <!-- DICOTÓMICA (Falso/Verdadero, Sí/No) -->
+                              <p class="text-xs text-gray-500 italic mb-2">Opciones automáticas (No editables):</p>
+                              <div class="flex gap-4">
+                                <label class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm cursor-not-allowed">
+                                  <input type="radio" disabled class="w-4 h-4 text-solve-primary">
+                                  <span class="text-sm font-medium">Verdadero</span>
+                                </label>
+                                <label class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm cursor-not-allowed">
+                                  <input type="radio" disabled class="w-4 h-4 text-solve-primary">
+                                  <span class="text-sm font-medium">Falso</span>
+                                </label>
+                              </div>
+                            }
+
+                            @case (3) {
+                              <!-- POLITÓMICA (Elección Única) -->
                               <div formArrayName="opciones" class="space-y-3 w-full">
-                                <!-- Iteramos el sub-arreglo usando oIdx para que no choque con pIdx -->
+                                <p class="text-xs text-gray-500 italic mb-2">Opciones de respuesta (Selección única):</p>
                                 @for (opcion of getOpciones(pIdx).controls; track oIdx; let oIdx = $index) {
                                   <div [formGroupName]="oIdx" class="flex items-center gap-3">
                                     <div class="w-4 h-4 rounded-full border-2 border-gray-300 flex-shrink-0"></div>
-                                    <input type="text" formControlName="texto" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
+                                    <input type="text" formControlName="opcion" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
                                     <button type="button" (click)="removeOpcion(pIdx, oIdx)" class="text-gray-400 hover:text-red-500 transition-colors">
                                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
@@ -150,17 +129,76 @@
                               </div>
                             }
 
+                            @case (4) {
+                              <!-- ELECCION_MULTIPLE (Casillas / Checkboxes) -->
+                              <div formArrayName="opciones" class="space-y-3 w-full">
+                                <p class="text-xs text-gray-500 italic mb-2">Opciones de respuesta (Selección múltiple):</p>
+                                @for (opcion of getOpciones(pIdx).controls; track oIdx; let oIdx = $index) {
+                                  <div [formGroupName]="oIdx" class="flex items-center gap-3">
+                                    <div class="w-4 h-4 rounded border-2 border-gray-300 flex-shrink-0"></div>
+                                    <input type="text" formControlName="opcion" placeholder="Escribe una opción..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
+                                    <button type="button" (click)="removeOpcion(pIdx, oIdx)" class="text-gray-400 hover:text-red-500 transition-colors">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                  </div>
+                                }
+                                <button type="button" (click)="addOpcion(pIdx)" class="flex items-center gap-2 text-sm text-solve-primary font-bold hover:underline mt-2">
+                                  <span>+ Añadir Opción</span>
+                                </button>
+                              </div>
+                            }
+
+                            @case (5) {
+                              <!-- RANKING -->
+                              <div formArrayName="opciones" class="space-y-3 w-full">
+                                <p class="text-xs text-gray-500 italic mb-2">Elementos para ordenar en el ranking:</p>
+                                @for (opcion of getOpciones(pIdx).controls; track oIdx; let oIdx = $index) {
+                                  <div [formGroupName]="oIdx" class="flex items-center gap-3">
+                                    <span class="text-xs font-bold text-gray-400 w-5">{{ oIdx + 1 }}.</span>
+                                    <input type="text" formControlName="opcion" placeholder="Escribe un elemento..." class="flex-1 text-sm bg-transparent border-b border-gray-300 focus:border-solve-primary outline-none px-1 py-1">
+                                    <button type="button" (click)="removeOpcion(pIdx, oIdx)" class="text-gray-400 hover:text-red-500 transition-colors">
+                                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                  </div>
+                                }
+                                <button type="button" (click)="addOpcion(pIdx)" class="flex items-center gap-2 text-sm text-solve-primary font-bold hover:underline mt-2">
+                                  <span>+ Añadir Elemento</span>
+                                </button>
+                              </div>
+                            }
+
+                            @case (6) {
+                              <!-- ESCALA LIKERT (1-5) -->
+                              <div>
+                                <p class="text-xs text-gray-500 italic mb-2">Previsualización de la escala Likert (1 al 5):</p>
+                                <div class="flex justify-between items-center gap-2 bg-white p-3 rounded-lg border border-gray-200 shadow-sm max-w-md mx-auto">
+                                  <span class="text-xs text-solve-text-muted">Totalmente en desacuerdo</span>
+                                  <div class="flex gap-2">
+                                    @for (num of [1, 2, 3, 4, 5]; track num) {
+                                      <span class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-500">{{ num }}</span>
+                                    }
+                                  </div>
+                                  <span class="text-xs text-solve-text-muted">Totalmente de acuerdo</span>
+                                </div>
+                              </div>
+                            }
+
                             @case (7) {
-                              <!-- DICOTÓMICA SI/NO -->
-                              <div class="flex gap-4">
-                                <label class="flex items-center gap-2 cursor-pointer"><input type="radio" disabled class="w-4 h-4"><span class="text-sm font-medium">Sí</span></label>
-                                <label class="flex items-center gap-2 cursor-pointer"><input type="radio" disabled class="w-4 h-4"><span class="text-sm font-medium">No</span></label>
+                              <!-- ESCALA NUMÉRICA (1-10) -->
+                              <div>
+                                <p class="text-xs text-gray-500 italic mb-2">Previsualización de la escala numérica (1 al 10):</p>
+                                <div class="flex flex-col gap-2 items-center bg-white p-3 rounded-lg border border-gray-200 shadow-sm max-w-md mx-auto">
+                                  <div class="flex gap-1.5 flex-wrap justify-center">
+                                    @for (num of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; track num) {
+                                      <span class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-sm font-bold text-gray-500">{{ num }}</span>
+                                    }
+                                  </div>
+                                </div>
                               </div>
                             }
 
                             @default {
-                              <!-- OTROS TIPOS -->
-                              <p class="text-sm text-gray-500 text-center">La configuración visual para este tipo de pregunta se aplicará automáticamente.</p>
+                              <p class="text-sm text-gray-500 text-center">La configuración visual se aplicará automáticamente.</p>
                             }
                           }
                         </div>
@@ -190,19 +228,21 @@
               Añadir Pregunta / Add Question
             </button>
           </div>
+
+          <!-- Acciones del Formulario Integradas -->
+          <div class="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+            <a routerLink="/encuestas" class="px-6 py-2.5 bg-cyan-50 hover:bg-cyan-100 text-solve-darker font-bold rounded-lg transition-colors text-sm">
+              Cancelar / Cancel
+            </a>
+            <button type="submit" class="px-6 py-2.5 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-lg transition-colors text-sm shadow-sm">
+              Guardar Encuesta / Save Survey
+            </button>
+          </div>
         </form>
+
       </div>
     </main>
 
-    <!-- BARRA FLOTANTE DE ACCIONES INFERIOR -->
-    <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex justify-end gap-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-30">
-      <a routerLink="/encuestas" class="px-6 py-2.5 bg-cyan-50 hover:bg-cyan-100 text-solve-darker font-bold rounded-lg transition-colors text-sm">
-        Cancelar / Cancel
-      </a>
-      <button type="button" (click)="onSubmit()" class="px-6 py-2.5 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-lg transition-colors text-sm shadow-sm">
-        Guardar Encuesta / Save Survey
-      </button>
-    </div>
-
+    <app-footer></app-footer>
   </div>
 </div>
