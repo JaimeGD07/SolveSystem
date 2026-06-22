@@ -1,10 +1,93 @@
-<div class="flex min-h-screen items-center justify-center bg-gray-50">
-  <div class="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg">
-    <h2 class="text-center text-3xl font-bold tracking-tight text-gray-900">
-      Sistema de Encuestas Solve - Login
-    </h2>
-    <p class="text-center text-sm text-gray-500">
-      [Placeholder: Formulario de Login]
-    </p>
-  </div>
+<div class="min-h-screen bg-white flex flex-col font-sans text-solve-dark">
+
+  <header class="flex items-center justify-between p-6 w-full max-w-7xl mx-auto">
+    <a routerLink="/" class="flex items-center gap-2 text-solve-primary font-bold hover:text-solve-primary-hover transition-colors">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      Volver / Back
+    </a>
+
+    <div class="flex gap-3">
+      <button class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-colors">
+        <svg class="w-4 h-4 text-solve-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path></svg>
+        EN
+      </button>
+      <button class="flex items-center justify-center w-9 h-9 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors">
+        <svg class="w-4 h-4 text-solve-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center px-4 pb-20">
+    <div class="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-lg overflow-hidden">
+
+      <div class="bg-solve-primary px-8 py-6 text-center">
+        <h2 class="text-xl md:text-2xl font-bold text-white tracking-wide">
+          Iniciar Sesión / Login
+        </h2>
+      </div>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="px-8 py-8 space-y-6">
+
+        <div>
+          <label for="email" class="block text-sm font-semibold text-solve-dark mb-1">
+            Correo Electrónico / Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-solve-text-muted focus:ring-2 focus:ring-solve-primary focus:border-solve-primary outline-none transition-all"
+            placeholder="usuario@ejemplo.com"
+          />
+          @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')) {
+            <span class="text-xs text-red-500 mt-1 block">El correo es requerido.</span>
+          }
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-semibold text-solve-dark mb-1">
+            Contraseña / Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-solve-primary focus:border-solve-primary outline-none transition-all"
+            placeholder="••••••••"
+          />
+          @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+            <span class="text-xs text-red-500 mt-1 block">La contraseña es requerida.</span>
+          }
+        </div>
+
+        @if (errorMessage()) {
+          <div class="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100 text-center">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <div class="pt-2">
+          <button
+            type="submit"
+            [disabled]="isLoading()"
+            class="w-full py-3 px-4 bg-solve-primary hover:bg-solve-primary-hover text-white font-bold rounded-lg transition-colors flex justify-center items-center disabled:opacity-70 disabled:cursor-not-allowed">
+            @if (isLoading()) {
+              <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              Cargando...
+            } @else {
+              Iniciar Sesión / Login
+            }
+          </button>
+        </div>
+
+        <div class="text-center mt-6">
+          <p class="text-xs text-solve-text-muted">¿No tienes cuenta? / Don't have an account?</p>
+          <a routerLink="/auth/login" class="text-sm font-bold text-solve-primary hover:text-solve-primary-hover transition-colors">
+            Regístrate aquí / Sign up here
+          </a>
+        </div>
+
+      </form>
+    </div>
+  </main>
 </div>

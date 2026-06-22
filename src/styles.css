@@ -3,12 +3,25 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Paleta del Sistema Solve basada en Figma */
-  --color-solve-primary: #0188FF;    /* Azul brillante (Botones) */
-  --color-solve-dark: #2A2597;       /* Azul marino (Títulos) */
+  /* Paleta Unificada del Sistema Solve (Figma + Vercel) */
+
+  /* Tonos Principales (Azules claros y brillantes) */
+  --color-solve-primary: #0188FF;
+  --color-solve-primary-hover: #0C87FA;
+  --color-solve-secondary: #007BAF;
+  --color-solve-light: #337CC5;
+  --color-solve-pale: rgba(192, 253, 255, 0.61); /* Fondos y Botones pálidos */
+  --color-solve-blue-dash: #4181E0; /* Nuevo azul del Dashboard */
+
+  /* Tonos Oscuros y Textos */
+  --color-solve-dark: #2A2597;       /* Azul marino (Títulos Landing) */
+  --color-solve-dark-alt: #1B3D92;   /* Azul marino (Textos Login) */
   --color-solve-darker: #211B92;     /* Azul marino oscuro */
-  --color-solve-secondary: #007BAF;  /* Azul verdoso */
-  --color-solve-light: #337CC5;      /* Azul claro */
-  --color-solve-gray: #CDCDCD;       /* Gris para bordes/sombras */
-  --color-solve-pale: rgba(192, 253, 255, 0.61); /* Cyan con 61% opacidad */
+  --color-solve-blue-dark: #0161CE;  /* Azul intermedio */
+  --color-solve-text-muted: #667FB3; /* Azul grisáceo para textos secundarios */
+  --color-solve-text-light: #9AA9C9; /* Nuevo gris/azul claro para textos */
+
+  /* Grises */
+  --color-solve-pale-strong: rgba(192, 253, 255, 0.81); /* Nuevo Cyan 81% */
+  --color-solve-gray: #CDCDCD;
 }
